@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#5b6e4e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pancia Serena">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Pancia Serena – diario IBS, ricette e allenamenti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f4ee; --card:#fffdf9; --ink:#2b2a27; --muted:#6f6a61; --line:#e6e0d4;
+  --green:#3f8f5a; --green-bg:#e5f2e8; --amber:#b7791f; --amber-bg:#fbf0dc;
+  --red:#b9473b; --red-bg:#f8e3e0; --accent:#5b6e4e; --blue:#3d6b8c; --blue-bg:#e3edf4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:24px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}
+h1{font-family:Fraunces,serif;font-weight:700;font-size:2rem;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:2px 0 0}
+nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:5;background:var(--bg);padding-top:8px;margin:20px 0 18px;border-bottom:1px solid var(--line);padding-bottom:10px}
+nav button{background:transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-weight:600}
+nav button.on{background:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-family:Fraunces,serif;font-size:1.3rem;margin:0 0 10px}
+h3{font-size:1rem;margin:0 0 6px}
+textarea,input,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+label{font-size:.85rem;font-weight:600;color:var(--muted);display:block;margin:10px 0 4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.primary{background:var(--accent);color:#fff}
+.primary:hover{filter:brightness(1.08)}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.small{padding:5px 10px;font-size:.82rem}
+.danger{background:transparent;color:var(--red);border:1px solid #ecc9c4}
+.hint{font-size:.85rem;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:.82rem;background:#efe9dd;border-radius:999px;padding:4px 10px;border:0;font-weight:500}
+.chip:hover{background:#e4dccb}
+.chip.sel{background:var(--accent);color:#fff}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.tile .lab{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tile .val{font-family:Fraunces,serif;font-size:1.5rem;font-weight:700;margin-top:2px}
+.g{color:var(--green)} .a{color:var(--amber)} .r{color:var(--red)}
+.alerts{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.alert{border-radius:12px;padding:9px 13px;font-size:.93rem}
+.alert.r{background:var(--red-bg);color:#7a2c24}
+.alert.a{background:var(--amber-bg);color:#7a4f10}
+.alert.g{background:var(--green-bg);color:#245a36}
+.alert.b{background:var(--blue-bg);color:#244a66}
+.foods{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.food{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;border-left:6px solid var(--line)}
+.food.l0{border-left-color:var(--green)} .food.l1{border-left-color:var(--amber)} .food.l2{border-left-color:var(--red)} .food.unk{border-left-color:#aaa}
+.food-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.food-name{font-weight:600;text-transform:capitalize}
+.badge{font-size:.76rem;font-weight:600;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.badge.l0{background:var(--green-bg);color:var(--green)}
+.badge.l1{background:var(--amber-bg);color:var(--amber)}
+.badge.l2{background:var(--red-bg);color:var(--red)}
+.badge.unk{background:#eee;color:#666}
+.food p{margin:5px 0 0;font-size:.9rem}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tag{font-size:.74rem;border-radius:6px;padding:2px 8px;background:#f0ece3;color:#4b473f}
+.tag.fod{background:#f5e6e3;color:#8a3a30}
+.tag.bl{background:#fbf0dc;color:#7a4f10}
+.tag.mi{background:var(--green-bg);color:#245a36}
+.micro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;margin-top:8px}
+.mi-cell{border-radius:10px;padding:7px 10px;font-size:.85rem;border:1px solid var(--line);background:#fff;font-weight:600}
+.mi-cell.on{background:var(--green-bg);border-color:#c7e3cf;color:#245a36}
+.mi-cell.off{color:#a39d92}
+.meal-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{font-size:.78rem;font-weight:600;border-radius:999px;padding:3px 10px}
+.pill.g{background:var(--green-bg)} .pill.a{background:var(--amber-bg)} .pill.r{background:var(--red-bg)}
+details summary{cursor:pointer;font-size:.88rem;color:var(--blue);font-weight:600;margin-top:8px}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.item-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.item-head b{font-size:1rem}
+.bars{display:flex;align-items:flex-end;gap:8px;height:130px;margin-top:12px;padding-top:6px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:.72rem;color:var(--muted)}
+.bar div{width:100%;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}
+.bar span.v{font-weight:600;color:var(--ink)}
+.sev{display:flex;gap:4px;flex-wrap:wrap}
+.sev button{width:34px;padding:6px 0;background:#efe9dd;border-radius:8px;font-size:.85rem}
+.sev button.sel{background:var(--red);color:#fff}
+.suspect{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.meter{flex:0 0 120px;height:8px;background:#eee;border-radius:5px;overflow:hidden}
+.meter div{height:100%;background:var(--red)}
+.foot{margin-top:30px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.hidden{display:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto}
+@media (max-width:600px){.wrap{padding:16px 12px 50px}h1{font-size:1.6rem}.card{padding:13px}textarea,input,select{font-size:16px}.summary{grid-template-columns:1fr 1fr}.tile .val{font-size:1.2rem}}
+.shop-item{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line)}
+.shop-item input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:var(--accent)}
+.shop-item .nm{flex:1;text-transform:capitalize}
+.shop-item.done .nm{text-decoration:line-through;color:var(--muted)}
+.shop-cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 2px;font-weight:600}
+.x{background:transparent;color:var(--muted);padding:4px 8px;font-size:1.1rem}
+#installBox{display:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Pancia Serena</h1><p class="sub">Diario alimentare per IBS, ricette, sintomi e allenamenti</p></div>
+    <div class="row" style="margin:0">
+      <button class="ghost small" id="exportBtn">Esporta backup</button>
+      <label class="ghost small" style="margin:0;border:1px solid var(--line);border-radius:10px;cursor:pointer;color:var(--ink)">Importa<input type="file" id="importFile" accept=".json" class="hidden"></label>
+    </div>
+  </header>
+
+  <div class="card" id="installBox" style="margin-top:14px"><div class="meal-head"><span>📱 Installa Pancia Serena sul telefono per usarla anche offline.</span><button class="primary small" id="installBtn">Installa</button></div></div>
+
+  <nav id="nav">
+    <button data-tab="analizza" class="on">Analizza</button>
+    <button data-tab="diario">Diario</button>
+    <button data-tab="ricette">Ricette</button>
+    <button data-tab="sintomi">Sintomi & note</button>
+    <button data-tab="spesa">Spesa</button>
+    <button data-tab="allenamenti">Allenamenti</button>
+  </nav>
+
+  <!-- ANALIZZA -->
+  <section id="tab-analizza">
+    <div class="card">
+      <h2>Analisi veloce</h2>
+      <textarea id="quick" placeholder="es. pollo, zucchine e melanzane&#10;oppure: pasta 80g con pomodoro, aglio e parmigiano"></textarea>
+      <div class="row"><button class="primary" id="quickGo">Analizza</button><span class="hint">Puoi indicare i grammi (es. "zucchine 150g"). Ctrl+Invio per analizzare.</span></div>
+      <div class="chips" id="examples"></div>
+    </div>
+    <div id="quickOut"></div>
+  </section>
+
+  <!-- DIARIO -->
+  <section id="tab-diario" class="hidden">
+    <div class="card">
+      <div class="meal-head">
+        <h2 style="margin:0">Diario alimentare</h2>
+        <div class="row" style="margin:0">
+          <button class="ghost small" id="dPrev">◀</button>
+          <input type="date" id="dDate" style="width:auto">
+          <button class="ghost small" id="dNext">▶</button>
+          <button class="ghost small" id="dToday">Oggi</button>
+        </div>
+      </div>
+      <p class="hint" style="margin:6px 0 0">Scrivi cosa hai mangiato: si salva da solo. Puoi usare anche il nome di una tua ricetta.</p>
+    </div>
+    <div id="dayMeals"></div>
+    <div id="daySummary"></div>
+  </section>
+
+  <!-- RICETTE -->
+  <section id="tab-ricette" class="hidden">
+    <div class="card">
+      <h2 id="rTitle">Nuova ricetta</h2>
+      <div class="grid2">
+        <div><label>Nome</label><input id="rName" placeholder="es. Risotto zucca e parmigiano"></div>
+        <div><label>Categoria</label><select id="rCat"><option>Primo</option><option>Secondo</option><option>Contorno</option><option>Colazione</option><option>Merenda</option><option>Dolce</option><option>Piatto unico</option></select></div>
+      </div>
+      <label>Ingredienti (uno per riga, grammi facoltativi)</label>
+      <textarea id="rIng" style="min-height:110px" placeholder="riso 80g&#10;zucca 75g&#10;parmigiano&#10;olio all'aglio"></textarea>
+      <label>Procedimento</label>
+      <textarea id="rProc" style="min-height:90px"></textarea>
+      <div class="row"><button class="primary" id="rSave">Salva ricetta</button><button class="ghost" id="rCheck">Controlla FODMAP</button><button class="ghost hidden" id="rCancel">Annulla modifica</button></div>
+      <div id="rCheckOut"></div>
+    </div>
+    <div class="card"><div class="meal-head"><h2 style="margin:0">Le mie ricette</h2><input id="rSearch" placeholder="Cerca…" style="width:200px"></div><div class="list" id="rList" style="margin-top:12px"></div></div>
+  </section>
+
+  <!-- SINTOMI -->
+  <section id="tab-sintomi" class="hidden">
+    <div class="card">
+      <h2>Come stai dopo il pasto?</h2>
+      <div class="grid2">
+        <div><label>Data</label><input type="date" id="sDate"></div>
+        <div><label>Ora</label><input type="time" id="sTime"></div>
+        <div><label>Dopo quale pasto</label><select id="sMeal"><option value="colazione">Colazione</option><option value="pranzo">Pranzo</option><option value="merenda">Merenda</option><option value="cena">Cena</option><option value="">Non so / tutta la giornata</option></select></div>
+      </div>
+      <div class="hint" id="sMealPreview" style="margin-top:6px"></div>
+      <label>Sintomi</label>
+      <div class="chips" id="sSymptoms"></div>
+      <label>Intensità (1 = lieve, 10 = fortissimo)</label>
+      <div class="sev" id="sSev"></div>
+      <div class="grid2">
+        <div><label>Feci (scala di Bristol)</label><select id="sBristol"><option value="">—</option><option value="1">1 – grumi duri (stitichezza)</option><option value="2">2 – a salsiccia, grumosa</option><option value="3">3 – salsiccia con crepe</option><option value="4">4 – liscia e morbida (ideale)</option><option value="5">5 – pezzi morbidi</option><option value="6">6 – pastosa</option><option value="7">7 – liquida (diarrea)</option></select></div>
+        <div><label>Stress oggi</label><select id="sStress"><option value="">—</option><option value="1">Basso</option><option value="2">Medio</option><option value="3">Alto</option></select></div>
+        <div><label>Alimento sospetto (facoltativo)</label><input id="sSuspect" placeholder="es. cipolla"></div>
+      </div>
+      <label>Note</label>
+      <textarea id="sNote" placeholder="es. gonfiore 1 ora dopo, avevo mangiato di fretta"></textarea>
+      <div class="row"><button class="primary" id="sSave">Salva</button></div>
+    </div>
+    <div class="card">
+      <h2>Alimenti sospetti</h2>
+      <p class="hint" style="margin-top:-4px">Incrocio i tuoi sintomi con quello che hai scritto nel diario: più un alimento compare nei pasti seguiti da sintomi, più sale in classifica.</p>
+      <div id="suspects"></div>
+    </div>
+    <div class="card"><h2>Storico</h2><div class="list" id="sList"></div></div>
+  </section>
+
+  <!-- SPESA -->
+  <section id="tab-spesa" class="hidden">
+    <div class="card">
+      <h2>Lista della spesa</h2>
+      <div class="row" style="margin-top:0"><input id="shopIn" placeholder="es. zucchine, latte senza lattosio, riso" style="flex:1;min-width:180px"><button class="primary" id="shopAdd">Aggiungi</button></div>
+      <p class="hint" style="margin:6px 0 0">Puoi scrivere più prodotti separati da virgola. Ti avviso se qualcosa è alto in FODMAP.</p>
+      <label>Aggiungi gli ingredienti di una ricetta</label>
+      <div class="row" style="margin-top:0"><select id="shopRecipe" style="flex:1;min-width:180px"></select><button class="ghost" id="shopFromRecipe">Aggiungi ingredienti</button></div>
+      <label>Base low FODMAP (tocca per aggiungere)</label>
+      <div class="chips" id="shopSugg" style="margin-top:0"></div>
+    </div>
+    <div class="card">
+      <div class="meal-head"><h2 style="margin:0">Da comprare <span class="hint" id="shopCount"></span></h2>
+        <div class="row" style="margin:0"><button class="ghost small" id="shopShare">Condividi / copia</button><button class="ghost small" id="shopClear">Togli presi</button></div></div>
+      <div id="shopList"></div>
+    </div>
+  </section>
+
+  <!-- ALLENAMENTI -->
+  <section id="tab-allenamenti" class="hidden">
+    <div class="card">
+      <h2>Nuovo allenamento</h2>
+      <div class="grid2">
+        <div><label>Data</label><input type="date" id="wDate"></div>
+        <div><label>Tipo</label><select id="wType"><option>CrossFit</option><option>Camminata</option><option>Corsa</option><option>Palestra / pesi</option><option>Pilates</option><option>Yoga</option><option>Bici</option><option>Nuoto</option><option>HIIT</option><option>Danza</option><option>Altro</option></select></div>
+        <div><label>Durata (minuti)</label><input type="number" id="wMin" min="1" placeholder="45"></div>
+        <div><label>Intensità</label><select id="wInt"><option value="1">Leggera</option><option value="2" selected>Moderata</option><option value="3">Intensa</option></select></div>
+      </div>
+      <div id="cfBox" class="grid2">
+        <div><label>Tipo di WOD</label><select id="cfWod"><option value="">—</option><option>AMRAP</option><option>EMOM</option><option>For Time</option><option>Chipper</option><option>Tabata</option><option>Forza / tecnica</option><option>Benchmark (Girl/Hero)</option><option>Open / gara</option></select></div>
+        <div><label>Risultato (tempo, round, kg)</label><input id="cfRes" placeholder="es. 12:35 · 5 round + 8 · 60 kg"></div>
+        <div><label>Scaled / RX</label><select id="cfRx"><option value="">—</option><option>Scaled</option><option>RX</option><option>RX+</option></select></div>
+      </div>
+      <label>Note (esercizi, come ti sentivi, pancia…)</label>
+      <textarea id="wNote" placeholder="es. Fran: thruster + pull-up 21-15-9, pancia un po' gonfia"></textarea>
+      <div class="row"><button class="primary" id="wSave">Salva allenamento</button></div>
+    </div>
+    <div class="summary" id="wStats"></div>
+    <div class="card" style="margin-top:14px"><h2>Minuti negli ultimi 7 giorni</h2><div class="bars" id="wBars"></div></div>
+    <div class="card"><h2>Storico</h2><div class="list" id="wList"></div></div>
+  </section>
+
+  <div class="foot">
+    Le soglie FODMAP si basano sui dati pubblicati dalla Monash University e sono indicative: la tolleranza è personale. La dieta low-FODMAP è un percorso temporaneo (eliminazione → reintroduzione) da seguire possibilmente con un dietista o gastroenterologo. Non sostituisce un parere medico.
+    I dati sono salvati solo in questo browser: usa "Esporta backup" ogni tanto.
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= DATI ALIMENTI =================
+const FOD = {FR:"fruttani",GOS:"GOS (galattani)",LA:"lattosio",FT:"fruttosio in eccesso",SO:"sorbitolo",MA:"mannitolo"};
+const BLOAT = {
+  fi:"molta fibra: può gonfiare se non abituata", zo:"crucifera: composti solforati, possibili gas",
+  gr:"ricco di grassi: rallenta la digestione", pi:"piccante: può irritare", gas:"bevanda gassata: aria nell'intestino",
+  caf:"caffeina: stimola la motilità intestinale", add:"spesso contiene aglio/cipolla o additivi: controlla l'etichetta",
+  ins:"fibra insolubile/buccia: può infastidire in fase acuta", alc:"alcol: irrita la mucosa in quantità"
+};
+const MICRO = {p:"Proteine",fi:"Fibra",c:"Vitamina C",a:"Vitamina A",k:"Vitamina K",e:"Vitamina E",d:"Vitamina D",b12:"Vitamina B12",fol:"Folati (B9)",b:"Altre vit. B",fe:"Ferro",ca:"Calcio",mg:"Magnesio",pot:"Potassio",zn:"Zinco",se:"Selenio",o3:"Omega-3",io:"Iodio"};
+const MICRO_KEY = ["p","fi","c","a","k","fol","b12","fe","ca","mg","pot","zn","o3","d"];
+
+// [nome, alias separati da |, livello 0/1/2, tipi FODMAP, porzione ok (g), nota, gonfiore, micronutrienti]
+const DB = [
+// --- Proteine animali
+["pollo","petto di pollo|cosce di pollo|pollo arrosto",0,"",0,"Ottimo per l'IBS: nessun FODMAP. Attenzione a marinature con aglio o cipolla.",[],["p","b","se","zn"]],
+["tacchino","fesa di tacchino",0,"",0,"Senza FODMAP, magro e leggero.",[],["p","b","se","zn"]],
+["manzo","carne di manzo|bistecca|vitello|hamburger|carne macinata|tagliata",0,"",0,"Senza FODMAP. Tagli grassi o cotture lunghe possono appesantire.",[],["p","b12","fe","zn","se"]],
+["maiale","lonza|braciola|arista",0,"",0,"Senza FODMAP.",[],["p","b","zn","se"]],
+["salsiccia","salsicce|wurstel|würstel",1,"FR",0,"La carne è senza FODMAP, ma spesso contiene aglio, cipolla o lattosio: dipende dalla ricetta.",["gr","add"],["p","b12","zn"]],
+["prosciutto crudo","crudo|speck",0,"",0,"Senza FODMAP. Molto sale.",[],["p","b","zn"]],
+["prosciutto cotto","cotto",0,"",0,"Di solito ok; alcuni contengono lattosio o destrosio aggiunti.",["add"],["p","b"]],
+["bresaola","",0,"",0,"Senza FODMAP, magra e ricca di ferro.",[],["p","fe","zn","b12"]],
+["salame","mortadella|salumi|pancetta",0,"",0,"Senza FODMAP, ma grasso e talvolta con aglio.",["gr","add"],["p","b12"]],
+["uova","uovo|frittata|omelette",0,"",0,"Senza FODMAP, ottima fonte proteica.",[],["p","b12","d","se","b"]],
+["salmone","",0,"",0,"Senza FODMAP, ricco di omega-3 antinfiammatori.",[],["p","o3","d","b12","se"]],
+["tonno","tonno in scatola",0,"",0,"Senza FODMAP.",[],["p","b12","se","d","o3"]],
+["merluzzo","baccalà|nasello|orata|branzino|spigola|pesce bianco|platessa|sogliola",0,"",0,"Pesce magro senza FODMAP, molto digeribile.",[],["p","b12","se","io"]],
+["sgombro","sardine|alici|acciughe",0,"",0,"Senza FODMAP, ricco di omega-3.",[],["p","o3","d","b12","ca"]],
+["gamberi","gamberetti|cozze|vongole|calamari|seppie|polpo|frutti di mare",0,"",0,"Senza FODMAP.",[],["p","b12","zn","se","io"]],
+// --- Proteine vegetali
+["tofu","tofu compatto",0,"",0,"Il tofu compatto è low FODMAP (il GOS se ne va con l'acqua). Il tofu morbido/silken invece è alto.",[],["p","ca","fe","mg"]],
+["tempeh","",0,"",0,"Low FODMAP grazie alla fermentazione.",[],["p","fe","mg","b"]],
+["ceci","hummus di ceci",2,"GOS",42,"Alti in GOS. In scatola e ben sciacquati sono tollerati fino a circa 40 g.",["fi"],["p","fi","fol","fe","mg"]],
+["lenticchie","",2,"GOS",46,"Alte in GOS. Quelle in scatola sciacquate vanno bene fino a circa 45 g.",["fi"],["p","fi","fol","fe","pot"]],
+["fagioli","borlotti|cannellini|fagioli neri|fagioli rossi",2,"GOS FR",0,"Tra i legumi più fermentabili: tipica causa di gonfiore.",["fi"],["p","fi","fol","fe","mg","pot"]],
+["piselli","",2,"GOS FR",0,"Alti in GOS e fruttani (piccole quantità a volte tollerate).",["fi"],["p","fi","c","k","fol"]],
+["fave","",2,"GOS FR",0,"Alte in GOS e fruttani.",["fi"],["p","fi","fol","fe"]],
+["edamame","fagioli di soia",0,"",90,"Low FODMAP fino a circa 90 g.",[],["p","fi","fol","k","fe"]],
+["hummus","",2,"GOS FR",0,"Ceci + aglio: doppio carico FODMAP.",["fi"],["p","fi","fe"]],
+// --- Verdure
+["zucchine","zucchina|zucchini",0,"FR",65,"Low FODMAP fino a circa 65 g; porzioni grandi aumentano i fruttani.",[],["c","k","pot","fol","b"]],
+["melanzane","melanzana",0,"SO",75,"Low FODMAP fino a circa 75 g; in porzioni grandi sorbitolo. Fritte o alla parmigiana diventano molto grasse.",[],["fi","pot","k","mg"]],
+["carote","carota",0,"",0,"Senza FODMAP alle porzioni normali, ottima scelta.",[],["a","k","pot","fi"]],
+["pomodori","pomodoro|pomodorini|pomodori ciliegini",0,"FT",65,"Pomodoro fresco ok fino a ~65 g (pomodorini ~75 g); oltre aumenta il fruttosio.",[],["c","a","k","pot"]],
+["peperoni","peperone|peperone rosso|peperone giallo|peperone verde",0,"FT",43,"Peperone rosso ok fino a ~45 g (il verde è tollerato meglio). Può risultare indigesto per la buccia.",["ins"],["c","a","fol","b"]],
+["spinaci","",0,"",0,"Low FODMAP anche in porzioni abbondanti.",[],["fol","k","a","fe","mg","ca"]],
+["lattuga","insalata|insalata verde|iceberg|lattughino|valeriana|songino",0,"",0,"Senza FODMAP, porzioni libere.",[],["k","a","fol"]],
+["rucola","",0,"",0,"Low FODMAP.",[],["k","ca","fol","c"]],
+["radicchio","indivia|scarola|cicoria",0,"FR",0,"Generalmente low FODMAP in porzioni normali (~75 g); amaro ma ben tollerato.",[],["k","fol","a"]],
+["cetrioli","cetriolo",0,"",0,"Senza FODMAP; la buccia a volte dà fastidio.",["ins"],["k","pot"]],
+["patate","patata|purè|pure",0,"",0,"Senza FODMAP. Fritte diventano grasse; il purè fatto con latte contiene lattosio.",[],["pot","c","b"]],
+["patate dolci","patata dolce|patata americana|batata",1,"MA",75,"Ok fino a circa 75 g, oltre mannitolo.",[],["a","pot","fi","c"]],
+["zucca","",0,"MA GOS",75,"Zucca tipo delica/kabocha low FODMAP; la butternut ok solo fino a ~45 g.",[],["a","c","pot","fi"]],
+["broccoli","broccolo",0,"FT",75,"Le cime sono low FODMAP fino a ~75 g; i gambi hanno più fruttosio. Crucifera: possibili gas.",["zo"],["c","k","fol","fi","ca"]],
+["cavolfiore","",2,"MA",0,"Alto in mannitolo e crucifera: spesso gonfia.",["zo"],["c","k","fol","fi"]],
+["cavolo","cavolo cappuccio|verza|cavolo nero|cavolo riccio|kale",0,"",75,"Cavolo cappuccio e cavolo nero sono low FODMAP in porzioni moderate (~75 g), ma da crucifere possono dare gas.",["zo"],["c","k","a","fol","ca"]],
+["cavolini di bruxelles","cavoletti di bruxelles|cavolini",1,"FR",38,"Ok fino a ~2 cavolini (38 g), oltre fruttani. Producono gas.",["zo"],["c","k","fol","fi"]],
+["finocchio","finocchi",0,"FR",48,"Il bulbo è ok fino a ~50 g; oltre fruttani. Tradizionalmente aiuta contro i gas.",[],["c","pot","fi"]],
+["sedano","",1,"MA",10,"Alto in mannitolo: ok solo in piccole quantità (es. nel soffritto).",[],["k","pot"]],
+["asparagi","asparago",2,"FT FR",0,"Alti in fruttosio e fruttani.",[],["fol","k","a"]],
+["carciofi","carciofo",2,"FR",0,"Tra le verdure più ricche di fruttani: tipica causa di gonfiore.",["fi"],["fi","fol","mg","k"]],
+["aglio","aglio fresco",2,"FR",0,"Una delle maggiori fonti di fruttani. Alternativa: olio aromatizzato all'aglio (i fruttani non passano nell'olio).",[],[]],
+["cipolla","cipolle|cipolla rossa|scalogno|soffritto",2,"FR",0,"Altissima in fruttani, anche cotta. Sostituisci con la parte verde del cipollotto o erba cipollina.",[],["c"]],
+["porro","porri",2,"FR",0,"La parte bianca è alta in fruttani; la parte verde delle foglie è low FODMAP.",[],["k","a"]],
+["erba cipollina","parte verde del cipollotto|cipollotto verde",0,"",0,"Ottima alternativa low FODMAP a cipolla e aglio.",[],["k","c"]],
+["funghi","champignon|porcini|funghi champignon",2,"MA",0,"Alti in mannitolo. Fanno eccezione i funghi in scatola sciacquati e gli shiitake secchi in piccole quantità.",[],["b","se","pot","d"]],
+["mais","mais dolce|pannocchia",1,"SO",38,"Ok fino a circa 38 g (mezza pannocchia), oltre sorbitolo.",["ins"],["fi","b","mg"]],
+["fagiolini","",0,"SO",75,"Low FODMAP fino a ~75 g.",[],["c","k","fol","fi"]],
+["barbabietola","barbabietole|rapa rossa",1,"FR GOS",20,"Ok solo in piccole quantità (~20 g).",[],["fol","pot","fe"]],
+["olive","oliva",0,"",0,"Low FODMAP.",["gr"],["e","fe"]],
+["avocado","",1,"SO",30,"Ok fino a ~30 g (un ottavo di avocado), oltre sorbitolo.",["gr"],["e","k","pot","fol","fi"]],
+["germogli di soia","germogli",0,"",0,"Low FODMAP.",[],["c","fol"]],
+["ravanelli","ravanello",0,"",0,"Low FODMAP.",[],["c"]],
+["pak choi","bok choy|cavolo cinese",0,"",0,"Low FODMAP.",[],["c","a","ca","k"]],
+// --- Frutta
+["banana","banane",1,"FR",35,"La banana acerba è low FODMAP; quella matura (con macchie) ok solo fino a ~1/3.",[],["pot","b","c","mg"]],
+["mela","mele",2,"FT SO",0,"Alta in fruttosio e sorbitolo: tipica causa di gonfiore e diarrea nell'IBS.",["fi"],["c","fi","pot"]],
+["pera","pere",2,"FT SO",0,"Alta in fruttosio e sorbitolo.",["fi"],["c","fi","k"]],
+["arancia","arance|spremuta",0,"",130,"Ok una arancia media. Spremute grandi concentrano gli zuccheri.",[],["c","fol","pot"]],
+["mandarino","mandarini|clementine|clementina",0,"",0,"Low FODMAP (1–2 frutti).",[],["c","a"]],
+["kiwi","",0,"",150,"Low FODMAP (2 kiwi) e utile per la regolarità.",[],["c","k","fi","pot"]],
+["fragole","fragola",0,"",0,"Low FODMAP (circa 5 medie).",[],["c","fol","mg"]],
+["mirtilli","",0,"",0,"Low FODMAP.",[],["c","k","fi"]],
+["lamponi","more",0,"FT",60,"Lamponi ok fino a ~60 g; le more sono più alte in polioli.",[],["c","fi","k"]],
+["uva","",0,"",150,"Low FODMAP in porzione normale (~150 g).",[],["c","k","pot"]],
+["ananas","",0,"",0,"Low FODMAP (~140 g).",[],["c","mg"]],
+["melone","melone cantalupo|melone giallo",0,"",120,"Ok circa 120 g. Il melone retato/honeydew è più alto in fruttani.",[],["c","a","pot"]],
+["anguria","cocomero",2,"FT MA",0,"Alta in fruttosio, mannitolo e fruttani.",[],["c","a"]],
+["pesca","pesche|nettarina|nettarine|percoche",2,"SO",0,"Alta in sorbitolo.",[],["c","a"]],
+["albicocca","albicocche",2,"SO",0,"Alta in sorbitolo.",[],["a","c","pot"]],
+["ciliegie","ciliegia|amarene",2,"FT SO",0,"Alte in fruttosio e sorbitolo.",[],["c","pot"]],
+["prugne","prugna|susine|susina|prugne secche",2,"SO",0,"Molto alte in sorbitolo (effetto lassativo).",["fi"],["k","fi","pot"]],
+["mango","",2,"FT",0,"Alto in fruttosio.",[],["c","a","fol"]],
+["papaya","",0,"",0,"Low FODMAP.",[],["c","a","fol"]],
+["limone","lime|succo di limone",0,"",0,"Low FODMAP.",[],["c"]],
+["pompelmo","",1,"FR",80,"Ok circa mezzo pompelmo.",[],["c","a"]],
+["melagrana","melograno",1,"FR",45,"Ok circa 45 g di chicchi.",[],["c","k","fol"]],
+["fichi","fico|fichi secchi",2,"FR FT",0,"Alti in fruttani e fruttosio.",["fi"],["fi","ca","pot"]],
+["datteri","dattero",2,"FR",0,"Alti in fruttani.",["fi"],["fi","pot","mg"]],
+["uvetta","uva passa",1,"FR",13,"Ok solo un cucchiaio (~13 g).",[],["pot","fe"]],
+// --- Cereali
+["pasta","spaghetti|penne|fusilli|maccheroni|rigatoni|tagliatelle|lasagne|pasta di grano",1,"FR",75,"La pasta di grano è ok fino a ~75 g cotta (~35 g cruda); porzioni normali da 80–100 g crude sono alte in fruttani.",[],["b","fe","mg"]],
+["pasta senza glutine","pasta di riso|pasta di mais|pasta gluten free",0,"",0,"Low FODMAP: ottima alternativa alla pasta di grano.",[],["b"]],
+["pasta integrale","",2,"FR",0,"Più fruttani della pasta bianca.",["fi"],["fi","mg","b","fe"]],
+["riso","riso basmati|riso integrale|risotto|riso venere",0,"",0,"Senza FODMAP, base sicura. Il risotto può contenere cipolla e brodo.",[],["b","mg"]],
+["quinoa","",0,"",0,"Low FODMAP e ricca di proteine.",[],["p","mg","fe","fol","fi"]],
+["avena","fiocchi d'avena|porridge",0,"FR GOS",52,"Fiocchi d'avena ok fino a ~50 g; la fibra solubile aiuta la regolarità.",[],["fi","mg","fe","zn","b"]],
+["pane","pane bianco|panino|baguette|rosetta|pane comune",1,"FR",30,"Pane di grano: ~1 fetta può essere tollerata, di più è alto in fruttani.",[],["b","fe"]],
+["pane integrale","pane ai cereali|pane multicereali",2,"FR GOS",0,"Alto in fruttani.",["fi"],["fi","b","mg","fe"]],
+["pane a lievitazione naturale","pane con lievito madre|pane di spelta|lievito madre|sourdough",0,"",0,"La lunga lievitazione riduce i fruttani: in genere ok 2 fette.",[],["b","fe"]],
+["pane senza glutine","",0,"",0,"Di solito low FODMAP (controlla che non ci sia farina di legumi o inulina).",[],["b"]],
+["pizza","",2,"FR LA",0,"Impasto di grano + spesso aglio/salse: alto. Pizza senza glutine con mozzarella è più gestibile.",["gr"],["ca","p"]],
+["focaccia","grissini|cracker|crackers|taralli|fette biscottate",1,"FR",0,"Prodotti di grano: piccole porzioni.",["gr"],["b"]],
+["couscous","cous cous|bulgur",2,"FR",0,"Grano: alto in fruttani.",[],["b","se"]],
+["orzo","farro|segale|pane di segale",2,"FR",0,"Alti in fruttani (il farro perlato è un po' meglio in piccola porzione).",["fi"],["fi","mg","b","se"]],
+["polenta","farina di mais",0,"",0,"Senza FODMAP.",[],["b","fi"]],
+["gallette di riso","gallette|gallette di mais",0,"",0,"Low FODMAP.",[],[]],
+["corn flakes","cornflakes|cereali",0,"",0,"I corn flakes semplici sono ok; molti cereali da colazione contengono inulina, miele o frutta secca alta in FODMAP.",["add"],["fe","b"]],
+["biscotti","cornetto|brioche|croissant|torta|dolci",2,"FR LA",0,"Farina di grano, burro/latte e zuccheri: carico FODMAP e grassi.",["gr"],[]],
+// --- Latticini
+["latte","latte vaccino|latte intero|latte parzialmente scremato|cappuccino|latte macchiato",2,"LA",0,"Alto in lattosio. Il latte delattosato è perfetto.",[],["ca","b12","io","p","d"]],
+["latte senza lattosio","latte delattosato|zymil",0,"",0,"Low FODMAP: stessi nutrienti del latte.",[],["ca","b12","io","p"]],
+["yogurt","yogurt intero|yogurt alla frutta",2,"LA",0,"Contiene lattosio. Meglio lo yogurt senza lattosio.",[],["ca","p","b12","io"]],
+["yogurt greco","",1,"LA",0,"Meno lattosio dello yogurt classico (è filtrato); la versione senza lattosio è sicura.",[],["ca","p","b12"]],
+["yogurt senza lattosio","yogurt delattosato",0,"",0,"Low FODMAP.",[],["ca","p","b12"]],
+["parmigiano","grana|grana padano|parmigiano reggiano|pecorino",0,"",0,"Stagionato: praticamente senza lattosio.",[],["ca","p","b12","zn"]],
+["mozzarella","fior di latte|bufala|mozzarella di bufala",0,"LA",40,"Bassa in lattosio in porzione normale.",[],["ca","p","b12"]],
+["ricotta","",1,"LA",40,"Ok circa 2 cucchiai (~40 g), oltre lattosio.",[],["ca","p","b12"]],
+["stracchino","crescenza|robiola|philadelphia|formaggio spalmabile",1,"LA",40,"Formaggi freschi: lattosio moderato, piccole porzioni.",["gr"],["ca","p"]],
+["formaggio stagionato","formaggio|cheddar|emmental|groviera|asiago|provolone|fontina|brie|camembert|feta",0,"",0,"Formaggi stagionati: lattosio quasi assente.",["gr"],["ca","p","b12","zn"]],
+["mascarpone","panna|panna da cucina",1,"LA",40,"Lattosio moderato e molti grassi.",["gr"],["a"]],
+["burro","",0,"",0,"Lattosio trascurabile, ma grasso.",["gr"],["a"]],
+["gelato","",2,"LA",0,"Alto in lattosio (i sorbetti alla frutta low FODMAP sono un'alternativa).",["gr"],["ca"]],
+["kefir","",1,"LA",0,"La fermentazione riduce il lattosio, ma non lo elimina: prova piccole quantità.",[],["ca","b12","p"]],
+// --- Bevande vegetali
+["latte di mandorla","bevanda di mandorla",0,"",0,"Low FODMAP; scegli versioni arricchite di calcio.",[],["e","ca"]],
+["latte di soia","bevanda di soia",1,"GOS",0,"Low FODMAP solo se fatto con proteine di soia; quello da fagioli interi è alto in GOS. Controlla l'etichetta.",["add"],["p","ca"]],
+["latte di avena","bevanda di avena",1,"FR GOS",125,"Ok circa mezza tazza (125 ml).",[],["ca","b"]],
+["latte di riso","bevanda di riso",0,"",200,"Low FODMAP fino a ~200 ml, ma povero di proteine.",[],["ca"]],
+// --- Frutta secca e semi
+["mandorle","mandorla",1,"GOS",12,"Ok circa 10 mandorle, oltre GOS.",["gr"],["e","mg","ca","fi"]],
+["noci","noce|noci pecan",0,"",30,"Low FODMAP (~10 gherigli), con omega-3.",["gr"],["o3","mg","e","zn"]],
+["nocciole","nocciola",1,"GOS",15,"Ok circa 10 nocciole.",["gr"],["e","mg","fol"]],
+["anacardi","anacardo",2,"GOS FR",0,"Alti in GOS e fruttani.",["gr"],["mg","zn","fe"]],
+["pistacchi","pistacchio",2,"GOS FR",0,"Alti in GOS e fruttani.",["gr"],["b","pot","fe"]],
+["arachidi","noccioline|burro di arachidi",0,"",0,"Low FODMAP (~30 g).",["gr"],["p","e","mg","b"]],
+["noci macadamia","macadamia|noci brasiliane|noci del brasile",0,"",0,"Low FODMAP.",["gr"],["se","mg"]],
+["semi di zucca","semi di girasole",0,"",0,"Low FODMAP, ricchi di magnesio e zinco.",[],["mg","zn","fe","e"]],
+["semi di chia","semi di lino|lino",0,"",24,"Low FODMAP (~2 cucchiai); utili per la stipsi con molta acqua.",["fi"],["o3","fi","mg","ca"]],
+// --- Condimenti e altro
+["olio","olio extravergine|olio d'oliva|evo|olio di semi",0,"",0,"Senza FODMAP, ma grasso: abbondante può peggiorare i sintomi.",["gr"],["e"]],
+["olio all'aglio","olio aromatizzato all'aglio",0,"",0,"Sicuro: i fruttani dell'aglio non passano nell'olio.",["gr"],["e"]],
+["sugo di pomodoro","passata|salsa di pomodoro|sugo",1,"FT FR",0,"La passata semplice è ok in porzione moderata; i sughi pronti contengono spesso aglio e cipolla.",["add"],["c","a","pot"]],
+["pesto","pesto alla genovese",2,"FR",0,"Contiene aglio. Esistono pesti senza aglio o puoi farlo con olio all'aglio.",["gr"],["k","e","ca"]],
+["dado","brodo|brodo di carne|brodo vegetale|dado da brodo",2,"FR",0,"Quasi sempre con cipolla e aglio. Esistono brodi low FODMAP certificati.",["add"],[]],
+["maionese","",0,"",0,"Ok, ma grassa; alcune contengono aglio.",["gr"],["e"]],
+["ketchup","",1,"FR FT",13,"Ok un cucchiaio.",["add"],[]],
+["senape","",0,"",0,"Low FODMAP.",[],[]],
+["salsa di soia","soia",0,"",0,"Low FODMAP in quantità da condimento.",[],[]],
+["aceto balsamico","glassa balsamica",1,"FT",21,"Ok circa un cucchiaio.",[],[]],
+["aceto","aceto di vino|aceto di mele",0,"",0,"Low FODMAP.",[],[]],
+["miele","",2,"FT",7,"Alto in fruttosio (ok solo un cucchiaino). Lo sciroppo d'acero è un'alternativa.",[],[]],
+["sciroppo d'acero","zucchero|zucchero di canna",0,"",0,"Low FODMAP.",[],[]],
+["sciroppo d'agave","agave",2,"FT",0,"Molto alto in fruttosio.",[],[]],
+["dolcificanti","sorbitolo|xilitolo|mannitolo|maltitolo|chewing gum|gomme da masticare|caramelle senza zucchero",2,"SO MA",0,"I polioli (ingredienti che finiscono in -olo) fermentano e hanno effetto lassativo.",[],[]],
+["cioccolato fondente","cioccolato extra fondente",0,"",30,"Ok circa 30 g.",["gr","caf"],["fe","mg"]],
+["cioccolato al latte","cioccolato bianco|nutella|crema spalmabile",1,"LA",20,"Lattosio e grassi: piccole quantità.",["gr"],["ca"]],
+["peperoncino","piccante|nduja|'nduja|curry piccante",0,"",0,"Senza FODMAP ma può irritare l'intestino sensibile.",["pi"],["c","a"]],
+["basilico","prezzemolo|rosmarino|origano|salvia|timo|menta|zenzero|curcuma|spezie",0,"",0,"Erbe e spezie (non piccanti) sono un ottimo modo per dare sapore senza aglio e cipolla. Menta e zenzero possono anche aiutare.",[],["k","a"]],
+// --- Bevande
+["caffè","caffe|espresso|caffè americano",0,"",0,"Senza FODMAP, ma la caffeina stimola l'intestino: attenzione se tendi alla diarrea.",["caf"],["mg"]],
+["tè","te|tè nero|tè verde|thè",0,"",0,"Tè nero o verde leggero è ok; molto carico contiene fruttani.",["caf"],[]],
+["camomilla","tisana|tisana al finocchio",1,"FR",0,"Camomilla e finocchio forti contengono fruttani; menta piperita e zenzero sono low FODMAP.",[],[]],
+["vino","vino rosso|vino bianco|prosecco|spumante",0,"",0,"Un bicchiere è low FODMAP, ma l'alcol irrita la mucosa.",["alc"],[]],
+["birra","",0,"",0,"Una birra è low FODMAP, ma gassata e alcolica.",["gas","alc"],["b"]],
+["bibite gassate","coca cola|cola|aranciata|acqua frizzante|acqua gassata|soda",0,"",0,"L'anidride carbonica aumenta il gonfiore; molte bibite contengono sciroppo di fruttosio.",["gas","add"],[]],
+["succo di frutta","succo di mela|succo di pera|succo ace|succo",2,"FT SO",0,"Succhi di mela/pera sono concentrati di fruttosio e sorbitolo.",[],["c"]],
+["rum","",2,"FT",0,"Alto in fruttosio. Gin, vodka e whisky sono low FODMAP.",["alc"],[]],
+// --- Preparazioni comuni
+["fritto","frittura|fritti|fritta|patatine fritte|cotoletta|impanato|impanata",0,"",0,"La frittura aggiunge molti grassi: rallenta la digestione e può peggiorare gonfiore e dolore.",["gr"],[]],
+];
+
+
+const SWAPS = {
+  "aglio":"usa olio aromatizzato all'aglio o aglio orsino in polvere low FODMAP.",
+  "cipolla":"usa la parte verde del cipollotto, erba cipollina o assafetida.",
+  "porro":"usa solo la parte verde delle foglie.",
+  "pasta":"scegli pasta senza glutine/di riso o tieni la porzione sotto i 75 g cotta.",
+  "pasta integrale":"prova pasta di riso integrale o di grano saraceno.",
+  "pane integrale":"meglio pane a lievitazione naturale o senza glutine.",
+  "latte":"passa al latte senza lattosio o bevanda di mandorla.",
+  "yogurt":"scegli yogurt senza lattosio.",
+  "gelato":"un sorbetto alla fragola o al limone è più tollerato.",
+  "mela":"sostituisci con kiwi, arancia o fragole.",
+  "pera":"sostituisci con kiwi, arancia o fragole.",
+  "anguria":"prova melone cantalupo o ananas.",
+  "funghi":"funghi in scatola sciacquati o shiitake secchi in poca quantità.",
+  "cavolfiore":"prova broccoli (solo cime) o zucchine.",
+  "fagioli":"lenticchie o ceci in scatola sciacquati in piccola porzione, o tofu compatto.",
+  "ceci":"in scatola e sciacquati, max ~40 g.",
+  "lenticchie":"in scatola e sciacquate, max ~45 g.",
+  "miele":"usa sciroppo d'acero.",
+  "pesto":"pesto senza aglio o fatto in casa con olio all'aglio.",
+  "dado":"brodo fatto in casa con carote, parte verde del porro ed erbe.",
+  "pizza":"base senza glutine o a lunga lievitazione, senza aglio.",
+  "carciofi":"in fase di eliminazione meglio evitarli.",
+  "asparagi":"prova fagiolini o zucchine.",
+  "hummus":"hummus low FODMAP: ceci in scatola sciacquati e olio all'aglio."
+};
+
+
+// ================= STORAGE =================
+const KEY="pancia_serena_v1";
+let S={diary:{},recipes:[],symptoms:[],workouts:[],shopping:[]};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Impossibile salvare nel browser");}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function today(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+function shiftDate(s,n){const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function fmtDate(s){return new Date(s+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"});}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1800);}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+// ================= MOTORE DI ANALISI =================
+const FOODS = DB.map(r=>({name:r[0],alias:[r[0],...(r[1]?r[1].split("|"):[])],lvl:r[2],types:r[3]?r[3].split(" "):[],limit:r[4],note:r[5],bloat:r[6],micro:r[7]}));
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[’`]/g,"'").trim();}
+const INDEX=[];
+FOODS.forEach(f=>f.alias.forEach(a=>{const k=norm(a);INDEX.push({k,f,re:new RegExp("(^|[^a-z])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^a-z]|$)")});}));
+INDEX.sort((x,y)=>y.k.length-x.k.length);
+const STOP=/\b(il|lo|la|i|gli|le|un|uno|una|del|della|dello|dei|delle|degli|di|a|da|in|su|per|poco|poca|po|cotto|cotta|cotti|cotte|grigliato|grigliata|grigliati|grigliate|griglia|al|forno|bollito|bollita|lessi|lesse|lesso|lessa|crudo|cruda|crudi|crude|fresco|fresca|freschi|fresche|piatto|porzione|pezzi|pezzetti|tagliato|saltato|saltate|saltati|saltata|padella|vapore|insieme|qualche|fetta|fette|cucchiaio|cucchiai|cucchiaino|bicchiere|tazza|tazzina|sale|pepe|acqua|naturale|bianco|bianca|rosso|rossa|misto|mista|misti|miste|q\.?b|qb|spolverata|filo|pizzico|ciotola|vasetto)\b/g;
+
+// espande i nomi delle ricette nei loro ingredienti
+function expandRecipes(text){
+  let t=norm(text); const used=[];
+  [...S.recipes].sort((a,b)=>b.name.length-a.name.length).forEach(r=>{
+    const k=norm(r.name); if(k.length<3) return;
+    if(t.includes(k)){ t=t.split(k).join(" , "+norm(r.ing).replace(/\n/g," , ")+" , "); used.push(r.name); }
+  });
+  return {t,used};
+}
+
+function parse(text){
+  const {t,used}=expandRecipes(text);
+  const parts=t.split(/[,;\n+]|\s+e\s+|\s+ed\s+|\s+con\s+|\s+alla\s+|\s+allo\s+|\s+ai\s+|\s+alle\s+|\s+agli\s+/).map(s=>s.trim()).filter(Boolean);
+  const items=[];
+  parts.forEach(p=>{
+    let g=null; const m=p.match(/(\d+[.,]?\d*)\s*(g|gr|grammi|ml)\b/);
+    if(m) g=parseFloat(m[1].replace(",","."));
+    let rest=" "+p.replace(/(\d+[.,]?\d*)\s*(g|gr|grammi|ml)\b/g," ").replace(/\d+/g," ").replace(/\s+/g," ")+" ";
+    for(const it of INDEX){
+      if(it.re.test(rest)){
+        const ex=items.find(x=>x.f===it.f);
+        if(!ex) items.push({f:it.f,g});
+        else if(g&&ex.g) ex.g+=g;
+        rest=rest.replace(it.re," ");
+      }
+    }
+    const left=rest.replace(STOP," ").replace(/[^a-z' ]/g," ").replace(/\s+/g," ").trim();
+    if(left.length>2 && !items.some(x=>!x.f&&x.raw===left)) items.push({f:null,raw:left,g});
+  });
+  return {items,used};
+}
+
+const LVL=["Basso FODMAP","Moderato / porzione limitata","Alto FODMAP"];
+function analyze(text){
+  if(!text||!text.trim()) return null;
+  const {items,used}=parse(text);
+  if(!items.length) return null;
+  const known=items.filter(i=>i.f), unknown=items.filter(i=>!i.f);
+  known.forEach(i=>{
+    i.eff=i.f.lvl; i.portionMsg="";
+    if(i.f.limit && i.g && i.f.types.length){
+      if(i.g>i.f.limit*1.8){i.eff=2;i.portionMsg=`Con ${i.g} g superi abbondantemente la porzione sicura (~${i.f.limit} g).`;}
+      else if(i.g>i.f.limit){i.eff=Math.max(1,i.f.lvl);i.portionMsg=`${i.g} g è sopra la porzione sicura (~${i.f.limit} g): carico moderato.`;}
+      else {i.eff=0;i.portionMsg=`${i.g} g rientra nella porzione low FODMAP (~${i.f.limit} g).`;}
+    } else if(i.f.limit && i.f.types.length && i.f.lvl===0) i.portionMsg=`Porzione low FODMAP: circa ${i.f.limit} g.`;
+  });
+  const stack={};
+  known.forEach(i=>{ if(i.eff>=1||(i.f.limit&&i.f.types.length&&!i.g)) i.f.types.forEach(t=>{(stack[t]=stack[t]||[]).push(i.f.name);}); });
+  const high=known.filter(i=>i.eff===2), mod=known.filter(i=>i.eff===1);
+  const bloat=new Set(), micro=new Set();
+  known.forEach(i=>{i.f.bloat.forEach(b=>bloat.add(b));i.f.micro.forEach(m=>micro.add(m));});
+  const fats=known.filter(i=>i.f.bloat.includes("gr"));
+  let score=high.length*3+mod.length*1.2+(fats.length>=2?1:0)+(bloat.has("gas")?1:0)+(bloat.has("zo")?.6:0)+(bloat.has("pi")?.6:0);
+  Object.values(stack).forEach(a=>{if(a.length>=2)score+=1;});
+  const verdict=score>=3?{t:"Alto",c:"r",d:"Probabile gonfiore/fastidi"}:score>=1.2?{t:"Moderato",c:"a",d:"Attenzione alle porzioni"}:{t:"Basso",c:"g",d:"Ben tollerato"};
+
+  const alerts=[];
+  high.forEach(i=>alerts.push({c:"r",t:`<b>${cap(i.f.name)}</b>: ${i.f.types.map(t=>FOD[t]).join(", ")||"alto carico"} – ${swap(i.f.name)}`}));
+  Object.entries(stack).forEach(([t,a])=>{if(a.length>=2)alerts.push({c:"a",t:`<b>Effetto accumulo</b>: ${a.join(", ")} contengono tutti ${FOD[t]}. Insieme il carico si somma: tieni piccole le porzioni.`});});
+  if(fats.length>=2) alerts.push({c:"a",t:`<b>Pasto grasso</b> (${fats.map(i=>i.f.name).join(", ")}): i grassi rallentano la digestione e amplificano la sensibilità intestinale.`});
+  if(bloat.has("gas")) alerts.push({c:"a",t:`<b>Bevanda gassata</b>: causa diretta di gonfiore.`});
+  if(bloat.has("zo")) alerts.push({c:"a",t:`<b>Crucifere</b>: anche se low FODMAP possono dare gas. Ben cotte sono più digeribili.`});
+  if(!high.length&&!mod.length&&score<1.2&&known.length) alerts.push({c:"g",t:`Nessun alimento ad alto contenuto di FODMAP riconosciuto.`});
+
+  // qualità nutrizionale del pasto
+  const hasProt=micro.has("p"), hasVeg=known.some(i=>/c|k|a|fol/.test(i.f.micro.join(" "))&&!i.f.micro.includes("p")), hasCarb=known.some(i=>["riso","pasta","pasta senza glutine","patate","pane","pane a lievitazione naturale","pane senza glutine","quinoa","avena","polenta","gallette di riso","patate dolci","corn flakes"].includes(i.f.name));
+  const quality=[hasProt,hasVeg,hasCarb].filter(Boolean).length;
+  return {items,known,unknown,verdict,alerts,bloat,micro,stack,score,used,hasProt,hasVeg,hasCarb,quality};
+}
+function swap(n){return SWAPS[n]?"Alternativa: "+SWAPS[n]:"meglio evitarlo o ridurre molto la porzione in fase di eliminazione.";}
+
+// voto complessivo del pasto (IBS + nutrizione)
+function mealGrade(r){
+  const pts=(r.verdict.c==="g"?2:r.verdict.c==="a"?1:0)+(r.quality>=3?2:r.quality===2?1:0);
+  return pts>=4?{t:"Ottimo pasto",c:"g"}:pts>=3?{t:"Buon pasto",c:"g"}:pts>=2?{t:"Da migliorare",c:"a"}:{t:"Poco adatto",c:"r"};
+}
+
+function foodCards(r){
+  let h=`<div class="foods">`;
+  r.known.forEach(i=>{const f=i.f;
+    h+=`<div class="food l${i.eff}"><div class="food-head"><span class="food-name">${f.name}${i.g?` · ${i.g} g`:""}</span><span class="badge l${i.eff}">${LVL[i.eff]}</span></div>
+      <p>${f.note}</p>${i.portionMsg?`<p><b>Porzione:</b> ${i.portionMsg}</p>`:""}
+      <div class="tags">${(i.eff>0||f.limit?f.types:[]).map(t=>`<span class="tag fod">${FOD[t]}</span>`).join("")}${f.bloat.map(b=>`<span class="tag bl">${BLOAT[b]}</span>`).join("")}${f.micro.map(m=>`<span class="tag mi">${MICRO[m]}</span>`).join("")}</div></div>`;});
+  r.unknown.forEach(i=>{h+=`<div class="food unk"><div class="food-head"><span class="food-name">${esc(i.raw)}</span><span class="badge unk">Non nel database</span></div><p>Prova a scriverlo in modo più semplice (es. "pollo" invece di "bocconcini"), oppure salvalo come ricetta con i suoi ingredienti.</p></div>`;});
+  return h+`</div>`;
+}
+function microGrid(set){return `<div class="micro-grid">${MICRO_KEY.map(k=>`<div class="mi-cell ${set.has(k)?"on":"off"}">${set.has(k)?"✓":"–"} ${MICRO[k]}</div>`).join("")}</div>`;}
+const MTIPS={c:"kiwi, arancia, fragole o peperone",fi:"avena, kiwi, semi di chia o carote",ca:"parmigiano, latte senza lattosio o tofu",fe:"spinaci, carne rossa magra, tofu o semi di zucca (con vitamina C)",o3:"salmone, sgombro, noci o semi di chia",fol:"spinaci, rucola, edamame",mg:"semi di zucca, quinoa, cioccolato fondente",p:"pollo, pesce, uova o tofu compatto",pot:"patate, banana acerba, kiwi",a:"carote, zucca, spinaci",k:"spinaci, rucola, cavolo nero",b12:"pesce, uova, carne o latticini senza lattosio",zn:"carne, semi di zucca, parmigiano",d:"pesce grasso e uova (e un po' di sole)"};
+function microTips(set,n=4){
+  const miss=["p","fi","c","ca","fe","o3","fol","mg","pot","a"].filter(k=>!set.has(k)).slice(0,n);
+  if(!miss.length) return `<div class="alerts"><div class="alert g">Ottima varietà di nutrienti.</div></div>`;
+  return `<div class="alerts">${miss.map(k=>`<div class="alert b">Per aggiungere <b>${MICRO[k].toLowerCase()}</b> (low FODMAP): ${MTIPS[k]}.</div>`).join("")}</div>`;
+}
+
+// consigli concreti per migliorare il pasto
+function improveTips(r){
+  const t=[];
+  r.known.filter(i=>i.eff===2).forEach(i=>t.push(`<b>Sostituisci ${i.f.name}</b>: ${SWAPS[i.f.name]||"riducilo molto o toglilo in fase di eliminazione."}`));
+  r.known.filter(i=>i.eff===1).forEach(i=>t.push(`<b>Riduci ${i.f.name}</b>${i.f.limit?` a circa ${i.f.limit} g`:" a una piccola porzione"}${SWAPS[i.f.name]?`, oppure: ${SWAPS[i.f.name]}`:"."}`));
+  Object.entries(r.stack).forEach(([k,a])=>{if(a.length>=2)t.push(`<b>Distribuisci i ${FOD[k]}</b>: tieni solo uno tra ${a.join(", ")} in questo pasto e sposta l'altro a un pasto diverso, o metti le porzioni minime.`);});
+  if(!r.hasProt) t.push(`<b>Aggiungi proteine</b>: pollo, pesce, uova, tofu compatto o parmigiano. Saziano e stabilizzano la glicemia.`);
+  if(!r.hasVeg) t.push(`<b>Aggiungi verdura ben tollerata</b>: zucchine, carote, spinaci, lattuga o fagiolini (porzioni moderate).`);
+  if(!r.hasCarb && r.known.length>=2) t.push(`<b>Aggiungi un carboidrato low FODMAP</b>: riso, patate, quinoa, pasta senza glutine o pane a lievitazione naturale.`);
+  const fats=r.known.filter(i=>i.f.bloat.includes("gr"));
+  if(fats.length>=2) t.push(`<b>Alleggerisci i grassi</b>: preferisci cottura al forno, vapore o griglia e un filo d'olio a crudo invece di fritture e formaggi multipli.`);
+  if(r.bloat.has("gas")) t.push(`<b>Bevi acqua naturale</b> al posto di bibite gassate o birra.`);
+  if(r.bloat.has("zo")) t.push(`<b>Cuoci bene le crucifere</b> (anche al vapore) e tieni la porzione piccola.`);
+  if(r.bloat.has("pi")) t.push(`<b>Riduci il piccante</b>: usa erbe aromatiche, zenzero o paprika dolce.`);
+  if(r.bloat.has("add")) t.push(`<b>Controlla le etichette</b> di sughi, salumi e prodotti pronti: cerca aglio, cipolla, inulina, sciroppo di fruttosio, sorbitolo.`);
+  if(r.unknown.length) t.push(`<b>Alimenti non riconosciuti</b> (${r.unknown.map(u=>esc(u.raw)).join(", ")}): se è un piatto composto, salvalo nelle Ricette con i suoi ingredienti.`);
+  const miss=["fi","c","ca","fe","o3"].filter(k=>!r.micro.has(k)).slice(0,2);
+  miss.forEach(k=>t.push(`<b>Più ${MICRO[k].toLowerCase()}</b>: ${MTIPS[k]}.`));
+  t.push(`<b>Come mangi conta</b>: mastica a lungo, mangia senza fretta e non saltare i pasti; aiuta a ridurre aria e gonfiore.`);
+  return `<div class="card"><h2>Come migliorare questo pasto</h2><div class="alerts">${t.map(x=>`<div class="alert b">${x}</div>`).join("")}</div></div>`;
+}
+
+// ================= TAB =================
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function showTab(t){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s=>s.classList.toggle("hidden",s.id!=="tab-"+t));
+  ({diario:renderDiary,ricette:renderRecipes,sintomi:renderSymptoms,allenamenti:renderWorkouts,spesa:renderShop}[t]||(()=>{}))();
+  try{localStorage.setItem(KEY+"_tab",t);}catch(e){}
+}
+
+// ================= ANALIZZA =================
+function renderQuick(){
+  const r=analyze(document.getElementById("quick").value), out=document.getElementById("quickOut");
+  if(!r){out.innerHTML="";return;}
+  const g=mealGrade(r);
+  out.innerHTML=`<div class="summary">
+    <div class="tile"><div class="lab">Rischio intestinale</div><div class="val ${r.verdict.c}">${r.verdict.t}</div><div class="hint">${r.verdict.d}</div></div>
+    <div class="tile"><div class="lab">Giudizio pasto</div><div class="val ${g.c}">${g.t}</div><div class="hint">${balanceText(r)}</div></div>
+    <div class="tile"><div class="lab">Micronutrienti chiave</div><div class="val">${MICRO_KEY.filter(k=>r.micro.has(k)).length}<span class="hint"> / ${MICRO_KEY.length}</span></div><div class="hint">presenti</div></div>
+  </div><div class="alerts" style="margin-bottom:14px">${r.alerts.map(a=>`<div class="alert ${a.c}">${a.t}</div>`).join("")}</div>
+  ${improveTips(r)}
+  <div class="card"><h2>Alimento per alimento</h2>${foodCards(r)}<div class="legend"><span><span class="dot" style="background:var(--green)"></span>basso</span><span><span class="dot" style="background:var(--amber)"></span>attenzione alla porzione</span><span><span class="dot" style="background:var(--red)"></span>alto</span></div></div>
+  <div class="card"><h2>Micronutrienti</h2>${microGrid(r.micro)}</div>`;
+}
+function balanceText(r){const m=[];if(!r.hasProt)m.push("proteine");if(!r.hasVeg)m.push("verdura/frutta");if(!r.hasCarb)m.push("carboidrati");return m.length?"Manca: "+m.join(", "):"Pasto bilanciato";}
+document.getElementById("quickGo").addEventListener("click",renderQuick);
+document.getElementById("quick").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();renderQuick();}});
+const EX=["pollo, zucchine e melanzane","pasta 80g con pomodoro, aglio e parmigiano","salmone, riso e broccoli","yogurt con mela e miele","pizza e birra","avena 40g, kiwi e mandorle"];
+document.getElementById("examples").innerHTML=EX.map(e=>`<button class="chip">${e}</button>`).join("");
+document.querySelectorAll("#examples .chip").forEach(b=>b.addEventListener("click",()=>{document.getElementById("quick").value=b.textContent;renderQuick();}));
+
+// ================= DIARIO =================
+const MEALS=[["colazione","Colazione"],["pranzo","Pranzo"],["merenda","Merenda"],["cena","Cena"]];
+const dDate=document.getElementById("dDate"); dDate.value=today();
+function renderDiary(){
+  const d=dDate.value||today(), day=S.diary[d]||{};
+  const box=document.getElementById("dayMeals");
+  box.innerHTML=MEALS.map(([k,l])=>`<div class="card"><div class="meal-head"><h3 style="margin:0">${l}</h3><span id="pill-${k}"></span></div>
+    <textarea data-meal="${k}" placeholder="${l==="Merenda"?"es. kiwi e 10 mandorle":"es. pollo, zucchine e riso"}">${esc(day[k]||"")}</textarea>
+    <div id="res-${k}"></div></div>`).join("");
+  box.querySelectorAll("textarea").forEach(t=>{
+    let h; t.addEventListener("input",()=>{clearTimeout(h);h=setTimeout(()=>{
+      S.diary[d]=S.diary[d]||{}; S.diary[d][t.dataset.meal]=t.value;
+      if(!Object.values(S.diary[d]).some(v=>v&&v.trim())) delete S.diary[d];
+      save(); renderMeal(t.dataset.meal,t.value); renderDaySummary(d);
+    },500);});
+  });
+  MEALS.forEach(([k])=>renderMeal(k,day[k]||""));
+  renderDaySummary(d);
+}
+function renderMeal(k,text){
+  const r=analyze(text), res=document.getElementById("res-"+k), pill=document.getElementById("pill-"+k);
+  if(!r){res.innerHTML="";pill.innerHTML="";return;}
+  const g=mealGrade(r);
+  pill.innerHTML=`<span class="pill ${r.verdict.c}">FODMAP ${r.verdict.t.toLowerCase()}</span> <span class="pill ${g.c}">${g.t}</span>`;
+  const isSnack=k==="merenda";
+  res.innerHTML=`${r.used.length?`<p class="hint">Ricetta: ${r.used.map(esc).join(", ")}</p>`:""}
+    <div class="alerts">${r.alerts.map(a=>`<div class="alert ${a.c}">${a.t}</div>`).join("")}
+    ${!isSnack&&r.quality<3?`<div class="alert b"><b>Equilibrio</b>: ${balanceText(r).toLowerCase()}.</div>`:""}</div>
+    <details><summary>Come migliorarlo, dettaglio alimenti e micronutrienti</summary>${improveTips(r)}${foodCards(r)}${microGrid(r.micro)}</details>`;
+}
+function renderDaySummary(d){
+  const day=S.diary[d]||{}, out=document.getElementById("daySummary");
+  const rs=MEALS.map(([k,l])=>({k,l,r:analyze(day[k]||"")})).filter(x=>x.r);
+  if(!rs.length){out.innerHTML="";return;}
+  const micro=new Set(); rs.forEach(x=>x.r.micro.forEach(m=>micro.add(m)));
+  const totHigh=rs.reduce((s,x)=>s+x.r.known.filter(i=>i.eff===2).length,0);
+  const avg=rs.reduce((s,x)=>s+x.r.score,0)/rs.length;
+  const v=totHigh>=3||avg>=3?{t:"Giornata impegnativa",c:"r"}:totHigh>=1||avg>=1.2?{t:"Abbastanza buona",c:"a"}:{t:"Giornata gentile",c:"g"};
+  const fodTypes={}; rs.forEach(x=>x.r.known.filter(i=>i.eff>=1).forEach(i=>i.f.types.forEach(t=>fodTypes[t]=(fodTypes[t]||0)+1)));
+  const sym=S.symptoms.filter(s=>s.date===d);
+  const wk=S.workouts.filter(w=>w.date===d);
+  out.innerHTML=`<div class="card"><h2>Riepilogo della giornata</h2><div class="summary">
+    <div class="tile"><div class="lab">Pancia</div><div class="val ${v.c}">${v.t}</div><div class="hint">${totHigh} alimenti ad alto FODMAP</div></div>
+    <div class="tile"><div class="lab">Micronutrienti</div><div class="val">${MICRO_KEY.filter(k=>micro.has(k)).length}<span class="hint"> / ${MICRO_KEY.length}</span></div><div class="hint">coperti nella giornata</div></div>
+    <div class="tile"><div class="lab">Sintomi / Allenamenti</div><div class="val">${sym.length} · ${wk.length}</div><div class="hint">${wk.reduce((s,w)=>s+(+w.min||0),0)} min di attività</div></div>
+  </div>
+  ${Object.keys(fodTypes).length?`<div class="alerts"><div class="alert a">FODMAP presenti oggi: ${Object.entries(fodTypes).map(([t,n])=>`${FOD[t]} (${n})`).join(", ")}. Se hai sintomi, segnali nella sezione Sintomi.</div></div>`:""}
+  ${microGrid(micro)}${microTips(micro,3)}</div>`;
+}
+document.getElementById("dPrev").onclick=()=>{dDate.value=shiftDate(dDate.value,-1);renderDiary();};
+document.getElementById("dNext").onclick=()=>{dDate.value=shiftDate(dDate.value,1);renderDiary();};
+document.getElementById("dToday").onclick=()=>{dDate.value=today();renderDiary();};
+dDate.addEventListener("change",renderDiary);
+
+// ================= RICETTE =================
+let editing=null;
+function recipeAnalysisHTML(ing){
+  const r=analyze(ing); if(!r) return "";
+  return `<div class="alerts"><div class="alert ${r.verdict.c}">Rischio FODMAP: <b>${r.verdict.t}</b>${r.known.filter(i=>i.eff>=1).length?" – attenzione a: "+r.known.filter(i=>i.eff>=1).map(i=>i.f.name).join(", "):""}</div>${r.alerts.filter(a=>a.c!=="g").map(a=>`<div class="alert ${a.c}">${a.t}</div>`).join("")}</div>
+  <details><summary>Dettaglio ingredienti e micronutrienti</summary>${foodCards(r)}${microGrid(r.micro)}</details>`;
+}
+document.getElementById("rCheck").onclick=()=>{document.getElementById("rCheckOut").innerHTML=recipeAnalysisHTML(document.getElementById("rIng").value)||`<p class="hint">Scrivi prima gli ingredienti.</p>`;};
+document.getElementById("rSave").onclick=()=>{
+  const name=document.getElementById("rName").value.trim(), ing=document.getElementById("rIng").value.trim();
+  if(!name||!ing){toast("Servono nome e ingredienti");return;}
+  const rec={id:editing||uid(),name,cat:document.getElementById("rCat").value,ing,proc:document.getElementById("rProc").value.trim()};
+  if(editing) S.recipes=S.recipes.map(r=>r.id===editing?rec:r); else S.recipes.unshift(rec);
+  save(); resetRecipeForm(); renderRecipes(); toast("Ricetta salvata");
+};
+document.getElementById("rCancel").onclick=resetRecipeForm;
+function resetRecipeForm(){editing=null;["rName","rIng","rProc"].forEach(i=>document.getElementById(i).value="");document.getElementById("rTitle").textContent="Nuova ricetta";document.getElementById("rCancel").classList.add("hidden");document.getElementById("rCheckOut").innerHTML="";}
+document.getElementById("rSearch").addEventListener("input",renderRecipes);
+function renderRecipes(){
+  const q=norm(document.getElementById("rSearch").value||""), list=document.getElementById("rList");
+  const rs=S.recipes.filter(r=>!q||norm(r.name+" "+r.ing).includes(q));
+  if(!rs.length){list.innerHTML=`<p class="hint">${S.recipes.length?"Nessun risultato.":"Ancora nessuna ricetta. Una volta salvata, puoi scriverne il nome nel diario e verrà analizzata con i suoi ingredienti."}</p>`;return;}
+  list.innerHTML=rs.map(r=>{const a=analyze(r.ing);return `<div class="item"><div class="item-head"><div><b>${esc(r.name)}</b> <span class="hint">· ${esc(r.cat)}</span></div>
+    <div class="row" style="margin:0">${a?`<span class="pill ${a.verdict.c}">FODMAP ${a.verdict.t.toLowerCase()}</span>`:""}
+    <button class="ghost small" data-add="${r.id}">+ Diario oggi</button><button class="ghost small" data-edit="${r.id}">Modifica</button><button class="danger small" data-del="${r.id}">Elimina</button></div></div>
+    <details><summary>Ingredienti, procedimento e analisi</summary><p style="white-space:pre-wrap;margin:8px 0 0"><b>Ingredienti</b>\n${esc(r.ing)}</p>${r.proc?`<p style="white-space:pre-wrap"><b>Procedimento</b>\n${esc(r.proc)}</p>`:""}${recipeAnalysisHTML(r.ing)}</details></div>`;}).join("");
+  list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(b.dataset.c){S.recipes=S.recipes.filter(r=>r.id!==b.dataset.del);save();renderRecipes();}else{b.dataset.c=1;b.textContent="Conferma?";}});
+  list.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const r=S.recipes.find(x=>x.id===b.dataset.edit);editing=r.id;
+    document.getElementById("rName").value=r.name;document.getElementById("rCat").value=r.cat;document.getElementById("rIng").value=r.ing;document.getElementById("rProc").value=r.proc;
+    document.getElementById("rTitle").textContent="Modifica ricetta";document.getElementById("rCancel").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});});
+  list.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const r=S.recipes.find(x=>x.id===b.dataset.add);const h=new Date().getHours();
+    const meal=h<11?"colazione":h<15?"pranzo":h<18?"merenda":"cena";const d=today();S.diary[d]=S.diary[d]||{};
+    S.diary[d][meal]=(S.diary[d][meal]?S.diary[d][meal]+", ":"")+r.name;save();toast(`Aggiunta a ${meal} di oggi`);});
+}
+
+// ================= SINTOMI =================
+const SYMPTOMS=["Gonfiore","Dolore addominale","Gas","Crampi","Diarrea","Stitichezza","Nausea","Reflusso","Urgenza","Stanchezza"];
+let selSym=new Set(), sev=5;
+document.getElementById("sSymptoms").innerHTML=SYMPTOMS.map(s=>`<button class="chip" data-s="${s}">${s}</button>`).join("");
+document.querySelectorAll("#sSymptoms .chip").forEach(b=>b.onclick=()=>{selSym.has(b.dataset.s)?selSym.delete(b.dataset.s):selSym.add(b.dataset.s);b.classList.toggle("sel");});
+function renderSev(){document.getElementById("sSev").innerHTML=Array.from({length:10},(_,i)=>`<button class="${i+1<=sev?"sel":""}" data-v="${i+1}">${i+1}</button>`).join("");
+  document.querySelectorAll("#sSev button").forEach(b=>b.onclick=()=>{sev=+b.dataset.v;renderSev();});}
+renderSev();
+const sDate=document.getElementById("sDate"), sTime=document.getElementById("sTime"), sMeal=document.getElementById("sMeal");
+function defaultSymptomForm(){sDate.value=today();const n=new Date();sTime.value=n.toTimeString().slice(0,5);const h=n.getHours();sMeal.value=h<12?"colazione":h<16?"pranzo":h<19?"merenda":"cena";previewMeal();}
+function previewMeal(){const day=S.diary[sDate.value]||{};const txt=sMeal.value?day[sMeal.value]:MEALS.map(([k])=>day[k]).filter(Boolean).join(", ");
+  document.getElementById("sMealPreview").innerHTML=txt?`Nel diario: <b>${esc(txt)}</b>`:`Nessun pasto nel diario per questa scelta: scrivilo nel Diario per collegarlo ai sintomi.`;}
+[sDate,sMeal].forEach(e=>e.addEventListener("change",previewMeal));
+document.getElementById("sSave").onclick=()=>{
+  if(!selSym.size){toast("Scegli almeno un sintomo");return;}
+  S.symptoms.unshift({id:uid(),date:sDate.value,time:sTime.value,meal:sMeal.value,sym:[...selSym],sev,bristol:document.getElementById("sBristol").value,stress:document.getElementById("sStress").value,suspect:document.getElementById("sSuspect").value.trim(),note:document.getElementById("sNote").value.trim()});
+  S.symptoms.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  save(); selSym.clear(); document.querySelectorAll("#sSymptoms .chip").forEach(c=>c.classList.remove("sel"));
+  ["sSuspect","sNote"].forEach(i=>document.getElementById(i).value="");document.getElementById("sBristol").value="";document.getElementById("sStress").value="";
+  sev=5;renderSev();renderSymptoms();toast("Salvato");
+};
+function mealsText(date,meal){const day=S.diary[date]||{};return meal?(day[meal]||""):MEALS.map(([k])=>day[k]).filter(Boolean).join(", ");}
+function renderSuspects(){
+  // conteggio alimenti in tutti i pasti del diario
+  const total={}, bad={}, sevSum={};
+  Object.entries(S.diary).forEach(([d,day])=>MEALS.forEach(([k])=>{if(!day[k])return;const {items}=parse(day[k]);new Set(items.filter(i=>i.f).map(i=>i.f.name)).forEach(n=>total[n]=(total[n]||0)+1);}));
+  const seen=new Set();
+  S.symptoms.forEach(s=>{
+    const metas=s.meal?[[s.date,s.meal]]:MEALS.map(([k])=>[s.date,k]);
+    metas.forEach(([d,m])=>{const key=d+m;const txt=mealsText(d,m);if(!txt)return;
+      const names=new Set(parse(txt).items.filter(i=>i.f).map(i=>i.f.name));
+      names.forEach(n=>{if(!seen.has(key+n)){seen.add(key+n);bad[n]=(bad[n]||0)+1;}sevSum[n]=Math.max(sevSum[n]||0,s.sev);});});
+    if(s.suspect){const n=norm(s.suspect);const f=INDEX.find(i=>i.re.test(" "+n+" "));const nm=f?f.f.name:n;bad[nm]=(bad[nm]||0)+1.5;total[nm]=Math.max(total[nm]||0,bad[nm]);sevSum[nm]=Math.max(sevSum[nm]||0,s.sev);}
+  });
+  const rows=Object.keys(bad).map(n=>{const ratio=Math.min(1,bad[n]/Math.max(total[n]||1,bad[n]));const ff=FOODS.find(x=>x.name===n);return {n,bad:bad[n],tot:Math.max(total[n]||0,Math.round(bad[n])),ratio,score:bad[n]*ratio+(ff?ff.lvl*0.3:0)};})
+    .sort((a,b)=>b.score-a.score).slice(0,10);
+  const box=document.getElementById("suspects");
+  if(!rows.length){box.innerHTML=`<p class="hint">Servono qualche giorno di diario e almeno un sintomo registrato per vedere i primi sospetti.</p>`;return;}
+  const fodOf=n=>{const f=FOODS.find(x=>x.name===n);return f&&f.types.length&&f.lvl>0?` <span class="tag fod">${f.types.map(t=>FOD[t]).join(", ")}</span>`:"";};
+  box.innerHTML=rows.map(r=>`<div class="suspect"><div><b style="text-transform:capitalize">${esc(r.n)}</b>${fodOf(r.n)}<div class="hint">sintomi in ${Math.round(r.bad)} su ${r.tot} volte che l'hai mangiato</div></div><div class="meter"><div style="width:${Math.round(r.ratio*100)}%"></div></div></div>`).join("")
+   +`<p class="hint" style="margin-top:10px">È un indizio, non una prova: un alimento che compare spesso insieme a un altro può "prendersi la colpa". Per confermarlo prova a toglierlo 1–2 settimane e poi reintrodurlo.</p>`;
+  // pattern stress/FODMAP
+  const withStress=S.symptoms.filter(s=>s.stress==="3").length;
+  if(S.symptoms.length>=4&&withStress/S.symptoms.length>=.5) box.innerHTML+=`<div class="alert b" style="margin-top:8px">Più della metà dei sintomi capita in giornate di stress alto: l'asse intestino-cervello conta quanto il cibo.</div>`;
+}
+function renderSymptoms(){
+  defaultSymptomForm(); renderSuspects();
+  const list=document.getElementById("sList");
+  if(!S.symptoms.length){list.innerHTML=`<p class="hint">Nessuna nota ancora.</p>`;return;}
+  const BR={"1":"Bristol 1","2":"Bristol 2","3":"Bristol 3","4":"Bristol 4","5":"Bristol 5","6":"Bristol 6","7":"Bristol 7"};
+  list.innerHTML=S.symptoms.map(s=>`<div class="item"><div class="item-head"><div><b>${fmtDate(s.date)}</b> <span class="hint">${s.time||""} · ${s.meal||"giornata"}</span></div>
+    <div class="row" style="margin:0"><span class="pill ${s.sev>=7?"r":s.sev>=4?"a":"g"}">intensità ${s.sev}/10</span><button class="danger small" data-del="${s.id}">Elimina</button></div></div>
+    <div class="tags">${s.sym.map(x=>`<span class="tag fod">${x}</span>`).join("")}${s.bristol?`<span class="tag">${BR[s.bristol]}</span>`:""}${s.stress?`<span class="tag">stress ${["","basso","medio","alto"][s.stress]}</span>`:""}${s.suspect?`<span class="tag bl">sospetto: ${esc(s.suspect)}</span>`:""}</div>
+    ${mealsText(s.date,s.meal)?`<p class="hint" style="margin:6px 0 0">Mangiato: ${esc(mealsText(s.date,s.meal))}</p>`:""}${s.note?`<p style="margin:6px 0 0;font-size:.92rem">${esc(s.note)}</p>`:""}</div>`).join("");
+  list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(b.dataset.c){S.symptoms=S.symptoms.filter(s=>s.id!==b.dataset.del);save();renderSymptoms();}else{b.dataset.c=1;b.textContent="Conferma?";}});
+}
+
+// ================= ALLENAMENTI =================
+document.getElementById("wDate").value=today();
+document.getElementById("wSave").onclick=()=>{
+  const min=parseInt(document.getElementById("wMin").value,10);
+  if(!min||min<1){toast("Inserisci la durata");return;}
+  S.workouts.unshift({id:uid(),date:document.getElementById("wDate").value||today(),type:document.getElementById("wType").value,min,int:document.getElementById("wInt").value,note:document.getElementById("wNote").value.trim(),wod:cfOn()?document.getElementById("cfWod").value:"",res:cfOn()?document.getElementById("cfRes").value.trim():"",rx:cfOn()?document.getElementById("cfRx").value:""});
+  ["cfRes"].forEach(i=>document.getElementById(i).value="");
+  S.workouts.sort((a,b)=>b.date.localeCompare(a.date));
+  save();document.getElementById("wMin").value="";document.getElementById("wNote").value="";renderWorkouts();toast("Allenamento salvato");
+};
+function renderWorkouts(){
+  const t=today(), days=Array.from({length:7},(_,i)=>shiftDate(t,i-6));
+  const perDay=days.map(d=>S.workouts.filter(w=>w.date===d).reduce((s,w)=>s+w.min,0));
+  const week=perDay.reduce((a,b)=>a+b,0), max=Math.max(60,...perDay);
+  const month=S.workouts.filter(w=>w.date>=shiftDate(t,-29)).length;
+  const types={}; S.workouts.filter(w=>w.date>=shiftDate(t,-29)).forEach(w=>types[w.type]=(types[w.type]||0)+w.min);
+  const fav=Object.entries(types).sort((a,b)=>b[1]-a[1])[0];
+  let streak=0; for(let i=0;;i++){if(S.workouts.some(w=>w.date===shiftDate(t,-i)))streak++;else if(i>0||streak>0)break;else continue; if(i>365)break;}
+  document.getElementById("wStats").innerHTML=`
+    <div class="tile"><div class="lab">Questa settimana</div><div class="val">${week} min</div><div class="hint">${week>=150?"Obiettivo OMS (150 min) raggiunto ✓":`${150-week} min all'obiettivo OMS`}</div></div>
+    <div class="tile"><div class="lab">Ultimi 30 giorni</div><div class="val">${month}</div><div class="hint">allenamenti</div></div>
+    <div class="tile"><div class="lab">Attività preferita</div><div class="val" style="font-size:1.15rem">${fav?esc(fav[0]):"—"}</div><div class="hint">${fav?fav[1]+" min nel mese":""}</div></div>
+    <div class="tile"><div class="lab">Giorni di fila</div><div class="val">${streak}</div><div class="hint">con almeno un allenamento</div></div>`;
+  document.getElementById("wBars").innerHTML=days.map((d,i)=>`<div class="bar"><span class="v">${perDay[i]||""}</span><div style="height:${perDay[i]/max*100}%"></div>${new Date(d+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short"})}</div>`).join("");
+  const list=document.getElementById("wList");
+  if(!S.workouts.length){list.innerHTML=`<p class="hint">Nessun allenamento registrato. Tip: camminata e yoga sono tra le attività che aiutano di più la motilità intestinale nell'IBS.</p>`;return;}
+  list.innerHTML=S.workouts.slice(0,60).map(w=>`<div class="item"><div class="item-head"><div><b>${esc(w.type)}</b> <span class="hint">· ${fmtDate(w.date)}</span></div>
+    <div class="row" style="margin:0"><span class="pill ${w.int==="3"?"r":w.int==="2"?"a":"g"}">${w.min} min · ${["","leggera","moderata","intensa"][w.int]}</span><button class="danger small" data-del="${w.id}">Elimina</button></div></div>
+    ${(w.wod||w.res||w.rx)?`<div class="tags">${w.wod?`<span class="tag">${esc(w.wod)}</span>`:""}${w.rx?`<span class="tag mi">${esc(w.rx)}</span>`:""}${w.res?`<span class="tag bl">${esc(w.res)}</span>`:""}</div>`:""}
+    ${w.note?`<p style="margin:6px 0 0;font-size:.92rem">${esc(w.note)}</p>`:""}</div>`).join("");
+  list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(b.dataset.c){S.workouts=S.workouts.filter(w=>w.id!==b.dataset.del);save();renderWorkouts();}else{b.dataset.c=1;b.textContent="Conferma?";}});
+}
+
+function cfOn(){return document.getElementById("wType").value==="CrossFit";}
+function cfToggle(){document.getElementById("cfBox").style.display=cfOn()?"grid":"none";}
+document.getElementById("wType").addEventListener("change",cfToggle); cfToggle();
+
+// ================= SPESA =================
+const SHOP_CATS=[["Frutta e verdura",[]],["Carne, pesce, uova e legumi",[]],["Latticini e alternative",[]],["Pane, pasta e cereali",[]],["Dispensa e condimenti",[]],["Altro",[]]];
+function shopCat(name){
+  const f=foodOf(name); if(!f) return "Altro";
+  const i=DB.findIndex(r=>r[0]===f.name);
+  const order=DB.map(r=>r[0]);
+  const idx=k=>order.indexOf(k);
+  if(i<idx("zucchine")) return "Carne, pesce, uova e legumi";
+  if(i<idx("pasta")) return "Frutta e verdura";
+  if(i<idx("latte")) return "Pane, pasta e cereali";
+  if(i<idx("mandorle")) return "Latticini e alternative";
+  return "Dispensa e condimenti";
+}
+function foodOf(name){const n=" "+norm(name)+" ";const it=INDEX.find(i=>i.re.test(n));return it?it.f:null;}
+function addShop(names){
+  let added=0, warn=[];
+  names.map(s=>s.replace(/(\d+[.,]?\d*)\s*(g|gr|grammi|ml|kg|l)\b/gi,"").trim()).filter(s=>s.length>1).forEach(n=>{
+    if(S.shopping.some(x=>norm(x.name)===norm(n)&&!x.done)) return;
+    S.shopping.push({id:uid(),name:n,done:false}); added++;
+    const f=foodOf(n); if(f&&f.lvl===2) warn.push(f.name);
+  });
+  save(); renderShop();
+  toast(warn.length?`Attenzione: ${warn.join(", ")} è alto FODMAP`:added?`${added} aggiunti`:"Già in lista");
+}
+document.getElementById("shopAdd").onclick=()=>{const i=document.getElementById("shopIn");addShop(i.value.split(/[,;\n]/));i.value="";};
+document.getElementById("shopIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();document.getElementById("shopAdd").click();}});
+document.getElementById("shopFromRecipe").onclick=()=>{const r=S.recipes.find(x=>x.id===document.getElementById("shopRecipe").value);if(r)addShop(r.ing.split(/[\n,]/));};
+const SUGG=["riso","patate","pasta senza glutine","avena","pane a lievitazione naturale","pollo","uova","salmone","tofu compatto","zucchine","carote","spinaci","lattuga","pomodori","kiwi","arance","fragole","banana acerba","latte senza lattosio","yogurt senza lattosio","parmigiano","olio all'aglio","erba cipollina","noci","semi di chia"];
+document.getElementById("shopSugg").innerHTML=SUGG.map(s=>`<button class="chip">${s}</button>`).join("");
+document.querySelectorAll("#shopSugg .chip").forEach(b=>b.onclick=()=>addShop([b.textContent]));
+document.getElementById("shopClear").onclick=()=>{S.shopping=S.shopping.filter(x=>!x.done);save();renderShop();};
+document.getElementById("shopShare").onclick=async()=>{
+  const txt="Lista della spesa\n"+S.shopping.filter(x=>!x.done).map(x=>"• "+x.name).join("\n");
+  try{ if(navigator.share){await navigator.share({title:"Lista della spesa",text:txt});return;} }catch(e){if(e.name==="AbortError")return;}
+  try{await navigator.clipboard.writeText(txt);toast("Lista copiata");}catch(e){toast("Impossibile copiare");}
+};
+function renderShop(){
+  const sel=document.getElementById("shopRecipe");
+  sel.innerHTML=S.recipes.length?S.recipes.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join(""):`<option value="">Nessuna ricetta salvata</option>`;
+  const list=document.getElementById("shopList"), todo=S.shopping.filter(x=>!x.done).length;
+  document.getElementById("shopCount").textContent=S.shopping.length?`· ${todo} da prendere`:"";
+  if(!S.shopping.length){list.innerHTML=`<p class="hint">La lista è vuota.</p>`;return;}
+  const groups={}; S.shopping.forEach(x=>{const c=shopCat(x.name);(groups[c]=groups[c]||[]).push(x);});
+  list.innerHTML=SHOP_CATS.map(([c])=>c).filter(c=>groups[c]).map(c=>`<div class="shop-cat">${c}</div>`+groups[c].sort((a,b)=>a.done-b.done).map(x=>{
+    const f=foodOf(x.name); const b=f?`<span class="badge l${f.lvl}">${["low","moderato","alto"][f.lvl]}</span>`:"";
+    return `<div class="shop-item ${x.done?"done":""}"><input type="checkbox" data-chk="${x.id}" ${x.done?"checked":""}><span class="nm">${esc(x.name)}</span>${b}<button class="x" data-rm="${x.id}" aria-label="Rimuovi">×</button></div>`;}).join("")).join("");
+  list.querySelectorAll("[data-chk]").forEach(c=>c.onchange=()=>{const x=S.shopping.find(i=>i.id===c.dataset.chk);x.done=c.checked;save();renderShop();});
+  list.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{S.shopping=S.shopping.filter(i=>i.id!==b.dataset.rm);save();renderShop();});
+}
+
+// ================= PWA =================
+if("serviceWorker" in navigator && location.protocol!=="file:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBox").style.display="block";});
+document.getElementById("installBtn").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById("installBox").style.display="none";};
+window.addEventListener("appinstalled",()=>{document.getElementById("installBox").style.display="none";toast("App installata");});
+
+// ================= BACKUP =================
+document.getElementById("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`pancia-serena-backup-${today()}.json`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+document.getElementById("importFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader(); rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d||typeof d!=="object"||!("diary" in d))throw 0;
+    S={diary:d.diary||{},recipes:d.recipes||[],symptoms:d.symptoms||[],workouts:d.workouts||[],shopping:d.shopping||[]};save();toast("Backup importato");showTab("diario");}catch(err){toast("File non valido");}};
+  rd.readAsText(f); e.target.value="";
+};
+
+// avvio
+let startTab="analizza"; try{startTab=localStorage.getItem(KEY+"_tab")||"analizza";}catch(e){}
+showTab(startTab);
+</script>
+</body>
+</html>
