@@ -117,6 +117,18 @@ nav button{flex:0 0 auto}
 .macros{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .macro{font-size:.8rem;font-weight:600;border-radius:8px;padding:3px 9px;background:#f0ece3}
 .macro.k{background:#fbe9d6;color:#8a4b12}.macro.pr{background:#e3edf4;color:#244a66}.macro.ft{background:#fbf0dc;color:#7a4f10}.macro.cb{background:#e5f2e8;color:#245a36}
+.fav-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.fav{font-size:.8rem;background:#fff6dc;border:1px solid #f0dfa8;color:#6b5210;border-radius:999px;padding:4px 10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fav:hover{background:#fcedbd}
+.star{font-size:.8rem;padding:4px 10px;border-radius:999px;background:transparent;border:1px dashed #d9c98f;color:#8a6d12}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:38px;height:38px;padding:0;border-radius:50%;background:#efe9dd;font-size:1.2rem}
+.stepper .n{font-family:Fraunces,serif;font-size:1.4rem;font-weight:700;min-width:30px;text-align:center}
+.factor{padding:10px 0;border-bottom:1px dashed var(--line)}
+.factor:last-child{border-bottom:0}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.cmp div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:.85rem}
+.cmp b{font-family:Fraunces,serif;font-size:1.15rem;display:block}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 </style>
@@ -139,6 +151,7 @@ nav button{flex:0 0 auto}
     <button data-tab="ricette">Ricette</button>
     <button data-tab="sintomi">Sintomi & note</button>
     <button data-tab="spesa">Spesa</button>
+    <button data-tab="alimenti">Alimenti</button>
     <button data-tab="allenamenti">Allenamenti</button>
   </nav>
 
@@ -147,7 +160,7 @@ nav button{flex:0 0 auto}
     <div class="card">
       <h2>Analisi veloce</h2>
       <textarea id="quick" placeholder="es. pollo, zucchine e melanzane&#10;oppure: pasta 80g con pomodoro, aglio e parmigiano"></textarea>
-      <div class="row"><button class="primary" id="quickGo">Analizza</button><span class="hint">Puoi indicare i grammi (es. "zucchine 150g"). Ctrl+Invio per analizzare.</span></div>
+      <div class="row"><button class="primary" id="quickGo">Analizza</button><button class="star" id="quickFav">★ Salva come preferito</button><span class="hint">Puoi indicare i grammi (es. "zucchine 150g"). Ctrl+Invio per analizzare.</span></div>
       <div class="chips" id="examples"></div>
     </div>
     <div id="quickOut"></div>
@@ -168,7 +181,17 @@ nav button{flex:0 0 auto}
       <p class="hint" style="margin:6px 0 0">Scrivi cosa hai mangiato: si salva da solo. Puoi usare anche il nome di una tua ricetta.</p>
     </div>
     <div id="dayMeals"></div>
+    <div class="card">
+      <h2>Abitudini della giornata</h2>
+      <div class="grid2">
+        <div><label>Acqua (bicchieri da 250 ml)</label><div class="stepper"><button id="hWm">−</button><span class="n" id="hW">0</span><button id="hWp">+</button><span class="hint" id="hWl"></span></div></div>
+        <div><label>Ore di sonno (notte precedente)</label><input type="number" id="hSleep" min="0" max="16" step="0.5" inputmode="decimal" placeholder="es. 7.5"></div>
+        <div><label>Stress</label><select id="hStress"><option value="">—</option><option value="1">Basso</option><option value="2">Medio</option><option value="3">Alto</option></select></div>
+        <div><label>Ciclo</label><select id="hCycle"><option value="">—</option><option value="no">Nessuna fase particolare</option><option value="pre">Pre-ciclo (giorni prima)</option><option value="mes">Mestruazioni</option><option value="ovu">Ovulazione</option></select></div>
+      </div>
+    </div>
     <div id="daySummary"></div>
+    <div class="card" id="favCard"><h2>Pasti preferiti</h2><p class="hint" style="margin-top:-4px">Salvali con ★ sotto un pasto; toccali per inserirli al volo.</p><div id="favList"></div></div>
   </section>
 
   <!-- RICETTE -->
@@ -226,7 +249,45 @@ nav button{flex:0 0 auto}
       <p class="hint" style="margin-top:-4px">Incrocio i tuoi sintomi con quello che hai scritto nel diario: più un alimento compare nei pasti seguiti da sintomi, più sale in classifica.</p>
       <div id="suspects"></div>
     </div>
+    <div class="card">
+      <h2>Sintomi e abitudini</h2>
+      <p class="hint" style="margin-top:-4px">Confronto i giorni con sintomi con acqua, sonno, stress, ciclo e allenamento che segni nel Diario. Servono almeno 3 giorni per gruppo.</p>
+      <div id="habitOut"></div>
+    </div>
     <div class="card"><h2>Storico</h2><div class="list" id="sList"></div></div>
+  </section>
+
+  <!-- ALIMENTI -->
+  <section id="tab-alimenti" class="hidden">
+    <div class="card">
+      <h2 id="fTitle">Aggiungi un alimento</h2>
+      <p class="hint" style="margin-top:-4px">Gli alimenti che aggiungi qui vengono riconosciuti ovunque: analisi, diario, ricette e spesa. Se usi un nome già presente, il tuo sostituisce quello di base.</p>
+      <div class="grid2">
+        <div><label>Nome</label><input id="fName" placeholder="es. grano saraceno"></div>
+        <div><label>Altri nomi (separati da virgola)</label><input id="fAlias" placeholder="es. saraceno, pizzoccheri"></div>
+        <div><label>Livello FODMAP</label><select id="fLvl"><option value="0">Basso</option><option value="1">Moderato / solo in piccola porzione</option><option value="2">Alto</option></select></div>
+        <div><label>Porzione tollerata (g, facoltativa)</label><input type="number" id="fLimit" min="0" inputmode="numeric" placeholder="es. 75"></div>
+        <div><label>Reparto della spesa</label><select id="fCat"><option>Frutta e verdura</option><option>Carne, pesce, uova e legumi</option><option>Latticini e alternative</option><option>Pane, pasta e cereali</option><option>Dispensa e condimenti</option><option>Altro</option></select></div>
+      </div>
+      <label>Tipo di FODMAP (se moderato o alto)</label>
+      <div class="chips" id="fTypes" style="margin-top:0"></div>
+      <label>Possibili effetti sull'intestino</label>
+      <div class="chips" id="fBloat" style="margin-top:0"></div>
+      <label>Micronutrienti principali</label>
+      <div class="chips" id="fMicro" style="margin-top:0"></div>
+      <label>Nota (cosa sai di questo alimento, come lo tolleri)</label>
+      <textarea id="fNote" placeholder="es. Lo tollero bene fino a 60 g, oltre mi gonfia."></textarea>
+      <div class="row"><button class="primary" id="fSave">Salva alimento</button><button class="ghost hidden" id="fCancel">Annulla modifica</button></div>
+    </div>
+    <div class="card">
+      <div class="meal-head"><h2 style="margin:0">I miei alimenti</h2></div>
+      <div class="list" id="fList" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>Cerca nel database</h2>
+      <input id="fSearch" placeholder="Scrivi un alimento per vedere cosa sa l'app…">
+      <div id="fSearchOut"></div>
+    </div>
   </section>
 
   <!-- SPESA -->
@@ -492,7 +553,7 @@ const SWAPS = {
 
 // ================= STORAGE =================
 const KEY="healthy_life_v1";
-let S={diary:{},recipes:[],symptoms:[],workouts:[],shopping:[]};
+let S={diary:{},recipes:[],symptoms:[],workouts:[],shopping:[],customFoods:[],favorites:[],habits:{}};
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem("pancia_serena_v1"); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Impossibile salvare nel browser");}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
@@ -504,11 +565,19 @@ function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
 // ================= MOTORE DI ANALISI =================
-const FOODS = DB.map(r=>({name:r[0],alias:[r[0],...(r[1]?r[1].split("|"):[])],lvl:r[2],types:r[3]?r[3].split(" "):[],limit:r[4],note:r[5],bloat:r[6],micro:r[7]}));
+let FOODS=[], INDEX=[];
 function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[’`]/g,"'").trim();}
-const INDEX=[];
-FOODS.forEach(f=>f.alias.forEach(a=>{const k=norm(a);INDEX.push({k,f,re:new RegExp("(^|[^a-z])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^a-z]|$)")});}));
-INDEX.sort((x,y)=>y.k.length-x.k.length);
+// unisce il database di base con gli alimenti aggiunti da te
+function buildIndex(){
+  const custom=(S.customFoods||[]).map(c=>({name:c.name,alias:[c.name,...(c.alias||[])],lvl:+c.lvl,types:c.types||[],limit:+c.limit||0,
+    note:c.note||"Alimento aggiunto da te.",bloat:c.bloat||[],micro:c.micro||[],custom:true,cat:c.cat,id:c.id}));
+  const taken=new Set(); custom.forEach(c=>c.alias.forEach(a=>taken.add(norm(a))));
+  const base=DB.filter(r=>!taken.has(norm(r[0]))).map(r=>({name:r[0],alias:[r[0],...(r[1]?r[1].split("|"):[])].filter(a=>!taken.has(norm(a))),lvl:r[2],types:r[3]?r[3].split(" "):[],limit:r[4],note:r[5],bloat:r[6],micro:r[7]}));
+  FOODS=[...custom,...base]; INDEX=[];
+  FOODS.forEach(f=>f.alias.forEach(a=>{const k=norm(a);if(k.length<2)return;INDEX.push({k,f,re:new RegExp("(^|[^a-z])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^a-z]|$)")});}));
+  INDEX.sort((x,y)=>y.k.length-x.k.length);
+}
+buildIndex();
 const STOP=/\b(il|lo|la|i|gli|le|un|uno|una|del|della|dello|dei|delle|degli|di|a|da|in|su|per|poco|poca|po|cotto|cotta|cotti|cotte|grigliato|grigliata|grigliati|grigliate|griglia|al|forno|bollito|bollita|lessi|lesse|lesso|lessa|crudo|cruda|crudi|crude|fresco|fresca|freschi|fresche|piatto|porzione|pezzi|pezzetti|tagliato|saltato|saltate|saltati|saltata|padella|vapore|insieme|qualche|fetta|fette|cucchiaio|cucchiai|cucchiaino|bicchiere|tazza|tazzina|sale|pepe|acqua|naturale|bianco|bianca|rosso|rossa|misto|mista|misti|miste|q\.?b|qb|spolverata|filo|pizzico|ciotola|vasetto)\b/g;
 
 // espande i nomi delle ricette nei loro ingredienti
@@ -591,10 +660,10 @@ function mealGrade(r){
 function foodCards(r){
   let h=`<div class="foods">`;
   r.known.forEach(i=>{const f=i.f;
-    h+=`<div class="food l${i.eff}"><div class="food-head"><span class="food-name">${f.name}${i.g?` · ${i.g} g`:""}</span><span class="badge l${i.eff}">${LVL[i.eff]}</span></div>
-      <p>${f.note}</p>${i.portionMsg?`<p><b>Porzione:</b> ${i.portionMsg}</p>`:""}
+    h+=`<div class="food l${i.eff}"><div class="food-head"><span class="food-name">${esc(f.name)}${i.g?` · ${i.g} g`:""}${f.custom?` <span class="tag">tuo</span>`:""}</span><span class="badge l${i.eff}">${LVL[i.eff]}</span></div>
+      <p>${f.custom?esc(f.note):f.note}</p>${i.portionMsg?`<p><b>Porzione:</b> ${i.portionMsg}</p>`:""}
       <div class="tags">${(i.eff>0||f.limit?f.types:[]).map(t=>`<span class="tag fod">${FOD[t]}</span>`).join("")}${f.bloat.map(b=>`<span class="tag bl">${BLOAT[b]}</span>`).join("")}${f.micro.map(m=>`<span class="tag mi">${MICRO[m]}</span>`).join("")}</div></div>`;});
-  r.unknown.forEach(i=>{h+=`<div class="food unk"><div class="food-head"><span class="food-name">${esc(i.raw)}</span><span class="badge unk">Non nel database</span></div><p>Prova a scriverlo in modo più semplice (es. "pollo" invece di "bocconcini"), oppure salvalo come ricetta con i suoi ingredienti.</p></div>`;});
+  r.unknown.forEach(i=>{h+=`<div class="food unk"><div class="food-head"><span class="food-name">${esc(i.raw)}</span><span class="badge unk">Non nel database</span></div><p>Prova a scriverlo in modo più semplice, salvalo come ricetta con i suoi ingredienti, oppure aggiungilo al database.</p><div class="row" style="margin-top:6px"><button class="ghost small" data-newfood="${esc(i.raw)}">+ Aggiungi alimento</button></div></div>`;});
   return h+`</div>`;
 }
 function microGrid(set){return `<div class="micro-grid">${MICRO_KEY.map(k=>`<div class="mi-cell ${set.has(k)?"on":"off"}">${set.has(k)?"✓":"–"} ${MICRO[k]}</div>`).join("")}</div>`;}
@@ -632,7 +701,7 @@ document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",(
 function showTab(t){
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
   document.querySelectorAll("section[id^=tab-]").forEach(s=>s.classList.toggle("hidden",s.id!=="tab-"+t));
-  ({diario:renderDiary,ricette:renderRecipes,sintomi:renderSymptoms,allenamenti:renderWorkouts,spesa:renderShop}[t]||(()=>{}))();
+  ({diario:renderDiary,ricette:renderRecipes,sintomi:renderSymptoms,allenamenti:renderWorkouts,spesa:renderShop,alimenti:renderFoods}[t]||(()=>{}))();
   try{localStorage.setItem(KEY+"_tab",t);}catch(e){}
 }
 
@@ -665,7 +734,9 @@ function renderDiary(){
   const box=document.getElementById("dayMeals");
   box.innerHTML=MEALS.map(([k,l])=>`<div class="card"><div class="meal-head"><h3 style="margin:0">${l}</h3><span id="pill-${k}"></span></div>
     <textarea data-meal="${k}" placeholder="${l==="Merenda"?"es. kiwi e 10 mandorle":"es. pollo, zucchine e riso"}">${esc(day[k]||"")}</textarea>
+    <div class="fav-row" id="favs-${k}"></div>
     <div id="res-${k}"></div></div>`).join("");
+  MEALS.forEach(([k])=>renderFavRow(k));
   box.querySelectorAll("textarea").forEach(t=>{
     let h; t.addEventListener("input",()=>{clearTimeout(h);h=setTimeout(()=>{
       S.diary[d]=S.diary[d]||{}; S.diary[d][t.dataset.meal]=t.value;
@@ -674,6 +745,7 @@ function renderDiary(){
     },500);});
   });
   MEALS.forEach(([k])=>renderMeal(k,day[k]||""));
+  renderHabits(d); renderFavList();
   renderDaySummary(d);
 }
 function renderMeal(k,text){
@@ -817,7 +889,7 @@ function renderSuspects(){
   if(S.symptoms.length>=4&&withStress/S.symptoms.length>=.5) box.innerHTML+=`<div class="alert b" style="margin-top:8px">Più della metà dei sintomi capita in giornate di stress alto: l'asse intestino-cervello conta quanto il cibo.</div>`;
 }
 function renderSymptoms(){
-  defaultSymptomForm(); renderSuspects();
+  defaultSymptomForm(); renderSuspects(); renderHabitAnalysis();
   const list=document.getElementById("sList");
   if(!S.symptoms.length){list.innerHTML=`<p class="hint">Nessuna nota ancora.</p>`;return;}
   const BR={"1":"Bristol 1","2":"Bristol 2","3":"Bristol 3","4":"Bristol 4","5":"Bristol 5","6":"Bristol 6","7":"Bristol 7"};
@@ -869,6 +941,7 @@ document.getElementById("wType").addEventListener("change",cfToggle); cfToggle()
 const SHOP_CATS=[["Frutta e verdura",[]],["Carne, pesce, uova e legumi",[]],["Latticini e alternative",[]],["Pane, pasta e cereali",[]],["Dispensa e condimenti",[]],["Altro",[]]];
 function shopCat(name){
   const f=foodOf(name); if(!f) return "Altro";
+  if(f.custom) return f.cat||"Altro";
   const i=DB.findIndex(r=>r[0]===f.name);
   const order=DB.map(r=>r[0]);
   const idx=k=>order.indexOf(k);
@@ -924,6 +997,140 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPro
 document.getElementById("installBtn").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById("installBox").style.display="none";};
 window.addEventListener("appinstalled",()=>{document.getElementById("installBox").style.display="none";toast("App installata");});
 
+// ================= PASTI PREFERITI =================
+function addFavorite(text,meal){
+  text=(text||"").trim(); if(!text){toast("Scrivi prima il pasto");return;}
+  if(S.favorites.some(f=>norm(f.text)===norm(text))){toast("È già tra i preferiti");return;}
+  S.favorites.unshift({id:uid(),text,meal:meal||""}); save(); toast("★ Aggiunto ai preferiti");
+  if(document.getElementById("favList")){MEALS.forEach(([k])=>renderFavRow(k));renderFavList();}
+}
+function renderFavRow(k){
+  const el=document.getElementById("favs-"+k); if(!el) return;
+  const favs=[...S.favorites].sort((a,b)=>(b.meal===k)-(a.meal===k)).slice(0,8);
+  el.innerHTML=`<button class="star" data-savefav="${k}">★ Salva preferito</button>`+favs.map(f=>`<button class="fav" title="${esc(f.text)}" data-usefav="${f.id}" data-meal="${k}">${esc(f.text)}</button>`).join("");
+  el.querySelector("[data-savefav]").onclick=()=>addFavorite(document.querySelector(`textarea[data-meal="${k}"]`).value,k);
+  el.querySelectorAll("[data-usefav]").forEach(b=>b.onclick=()=>{
+    const f=S.favorites.find(x=>x.id===b.dataset.usefav), ta=document.querySelector(`textarea[data-meal="${k}"]`);
+    ta.value=ta.value.trim()?ta.value.trim()+", "+f.text:f.text; ta.dispatchEvent(new Event("input"));
+  });
+}
+function renderFavList(){
+  const el=document.getElementById("favList"); if(!el) return;
+  document.getElementById("favCard").style.display=S.favorites.length?"block":"none";
+  const ML={colazione:"colazione",pranzo:"pranzo",merenda:"merenda",cena:"cena"};
+  el.innerHTML=S.favorites.map(f=>`<div class="shop-item"><span class="nm" style="text-transform:none">${esc(f.text)}${f.meal?` <span class="hint">· ${ML[f.meal]||""}</span>`:""}</span><button class="x" data-delfav="${f.id}" aria-label="Rimuovi">×</button></div>`).join("");
+  el.querySelectorAll("[data-delfav]").forEach(b=>b.onclick=()=>{S.favorites=S.favorites.filter(x=>x.id!==b.dataset.delfav);save();MEALS.forEach(([k])=>renderFavRow(k));renderFavList();});
+}
+document.getElementById("quickFav").onclick=()=>addFavorite(document.getElementById("quick").value,"");
+
+// ================= ABITUDINI =================
+function habitOf(d){return S.habits[d]||{};}
+function setHabit(d,k,v){
+  S.habits[d]=S.habits[d]||{};
+  if(v===""||v==null) delete S.habits[d][k]; else S.habits[d][k]=v;
+  if(!Object.keys(S.habits[d]).length) delete S.habits[d];
+  save(); renderDaySummary(d);
+}
+function renderHabits(d){
+  const h=habitOf(d), w=h.water||0;
+  document.getElementById("hW").textContent=w;
+  document.getElementById("hWl").textContent=w?`${(w*0.25).toFixed(2).replace(/0$/,"").replace(".",",")} L`+(w>=8?" ✓":""):"obiettivo ~8";
+  document.getElementById("hSleep").value=h.sleep??"";
+  document.getElementById("hStress").value=h.stress||"";
+  document.getElementById("hCycle").value=h.cycle||"";
+}
+function curDay(){return dDate.value||today();}
+document.getElementById("hWp").onclick=()=>{const d=curDay();setHabit(d,"water",Math.min(30,(habitOf(d).water||0)+1));renderHabits(d);};
+document.getElementById("hWm").onclick=()=>{const d=curDay();const w=Math.max(0,(habitOf(d).water||0)-1);setHabit(d,"water",w||"");renderHabits(d);};
+document.getElementById("hSleep").addEventListener("change",e=>{const v=parseFloat(String(e.target.value).replace(",","."));setHabit(curDay(),"sleep",isFinite(v)?v:"");});
+document.getElementById("hStress").addEventListener("change",e=>setHabit(curDay(),"stress",e.target.value));
+document.getElementById("hCycle").addEventListener("change",e=>setHabit(curDay(),"cycle",e.target.value));
+
+function renderHabitAnalysis(){
+  const out=document.getElementById("habitOut");
+  // giorni osservati = giorni con diario o abitudini
+  const days=[...new Set([...Object.keys(S.diary),...Object.keys(S.habits)])];
+  const symDay={}; S.symptoms.forEach(s=>{symDay[s.date]=Math.max(symDay[s.date]||0,s.sev||1);});
+  const stressOf=d=>habitOf(d).stress||(S.symptoms.find(s=>s.date===d&&s.stress)||{}).stress||"";
+  const wkDays=new Set(S.workouts.map(w=>w.date));
+  const F=[
+    {t:"Sonno",ico:"😴",yes:"meno di 7 ore",no:"7 ore o più",test:d=>{const v=habitOf(d).sleep;return v==null?null:v<7;},tip:"Dormire poco aumenta la sensibilità intestinale: prova a proteggere le ore di sonno."},
+    {t:"Acqua",ico:"💧",yes:"meno di 6 bicchieri",no:"6 bicchieri o più",test:d=>{const v=habitOf(d).water;return v==null?null:v<6;},tip:"Bere poco favorisce stitichezza e gonfiore: tieni una borraccia sempre a portata."},
+    {t:"Stress",ico:"🧠",yes:"stress alto",no:"stress basso/medio",test:d=>{const v=stressOf(d);return v?v==="3":null;},tip:"L'asse intestino-cervello è forte: respirazione, camminate e pause aiutano quanto la dieta."},
+    {t:"Ciclo",ico:"🌙",yes:"pre-ciclo o mestruazioni",no:"altri giorni",test:d=>{const v=habitOf(d).cycle;return v?(v==="pre"||v==="mes"):null;},tip:"Gli ormoni del ciclo influenzano l'intestino: in quei giorni conviene essere più rigorosi con i FODMAP."},
+    {t:"Allenamento",ico:"🏋️",yes:"senza allenamento",no:"con allenamento",test:d=>!wkDays.has(d),tip:"Il movimento regolare aiuta la motilità: anche una camminata nei giorni di riposo può bastare."}
+  ];
+  if(!S.symptoms.length){out.innerHTML=`<p class="hint">Registra qualche sintomo e compila le abitudini nel Diario per vedere i collegamenti.</p>`;return;}
+  out.innerHTML=F.map(f=>{
+    const g={y:[],n:[]};
+    days.forEach(d=>{const r=f.test(d);if(r===null)return;(r?g.y:g.n).push(d);});
+    const stat=a=>{const s=a.filter(d=>symDay[d]);return {n:a.length,rate:a.length?Math.round(s.length/a.length*100):0,sev:s.length?(s.reduce((x,d)=>x+symDay[d],0)/s.length).toFixed(1).replace(".",","):"–"};};
+    const Y=stat(g.y), N=stat(g.n);
+    let msg;
+    if(Y.n<3||N.n<3) msg=`<p class="hint" style="margin:4px 0 0">Servono più dati: ${Y.n}/3 giorni con ${f.yes}, ${N.n}/3 con ${f.no}.</p>`;
+    else{
+      const diff=Y.rate-N.rate;
+      msg=`<div class="cmp"><div>Con ${f.yes}<b class="${Y.rate>=50?"r":Y.rate>=25?"a":"g"}">${Y.rate}%</b>giorni con sintomi · intensità ${Y.sev}</div><div>Con ${f.no}<b class="${N.rate>=50?"r":N.rate>=25?"a":"g"}">${N.rate}%</b>giorni con sintomi · intensità ${N.sev}</div></div>`
+        +(diff>=20?`<div class="alert r" style="margin-top:6px"><b>Sembra contare per te.</b> ${f.tip}</div>`:diff<=-20?`<div class="alert g" style="margin-top:6px">Per ora non sembra peggiorare i sintomi.</div>`:`<p class="hint" style="margin:6px 0 0">Nessuna differenza evidente per ora.</p>`);
+    }
+    return `<div class="factor"><b>${f.ico} ${f.t}</b>${msg}</div>`;
+  }).join("")+`<p class="hint" style="margin-top:8px">Sono correlazioni, non certezze: più giorni registri, più il quadro è affidabile.</p>`;
+}
+
+// ================= ALIMENTI PERSONALI =================
+let fEditing=null;
+function chipSet(id,map){
+  const el=document.getElementById(id);
+  el.innerHTML=Object.entries(map).map(([k,v])=>`<button class="chip" data-k="${k}">${v.split(":")[0]}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>b.classList.toggle("sel"));
+}
+function chipGet(id){return [...document.querySelectorAll(`#${id} .chip.sel`)].map(b=>b.dataset.k);}
+function chipPut(id,arr){document.querySelectorAll(`#${id} .chip`).forEach(b=>b.classList.toggle("sel",(arr||[]).includes(b.dataset.k)));}
+chipSet("fTypes",FOD);
+chipSet("fBloat",{fi:"molta fibra",zo:"crucifera / gas",gr:"grasso",pi:"piccante",gas:"gassato",caf:"caffeina",add:"additivi / etichetta",ins:"buccia / fibra insolubile",alc:"alcol"});
+chipSet("fMicro",MICRO);
+function resetFoodForm(){fEditing=null;["fName","fAlias","fLimit","fNote"].forEach(i=>document.getElementById(i).value="");document.getElementById("fLvl").value="0";document.getElementById("fCat").value="Altro";
+  ["fTypes","fBloat","fMicro"].forEach(i=>chipPut(i,[]));document.getElementById("fTitle").textContent="Aggiungi un alimento";document.getElementById("fCancel").classList.add("hidden");}
+document.getElementById("fCancel").onclick=resetFoodForm;
+document.getElementById("fSave").onclick=()=>{
+  const name=document.getElementById("fName").value.trim().toLowerCase();
+  if(!name){toast("Scrivi il nome");return;}
+  const lim=parseFloat(document.getElementById("fLimit").value);
+  const food={id:fEditing||uid(),name,alias:document.getElementById("fAlias").value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean),
+    lvl:+document.getElementById("fLvl").value,types:chipGet("fTypes"),limit:isFinite(lim)&&lim>0?lim:0,cat:document.getElementById("fCat").value,
+    bloat:chipGet("fBloat"),micro:chipGet("fMicro"),note:document.getElementById("fNote").value.trim()};
+  if(S.customFoods.some(f=>f.id!==food.id&&norm(f.name)===norm(name))){toast("Hai già un alimento con questo nome");return;}
+  if(fEditing) S.customFoods=S.customFoods.map(f=>f.id===fEditing?food:f); else S.customFoods.unshift(food);
+  save(); buildIndex(); resetFoodForm(); renderFoods(); toast("Alimento salvato");
+};
+function renderFoods(){
+  const el=document.getElementById("fList");
+  if(!S.customFoods.length){el.innerHTML=`<p class="hint">Non hai ancora aggiunto alimenti. Quando l'app non riconosce qualcosa, puoi aggiungerlo con un tocco.</p>`;}
+  else el.innerHTML=S.customFoods.map(f=>`<div class="item"><div class="item-head"><div><b style="text-transform:capitalize">${esc(f.name)}</b>${f.alias.length?` <span class="hint">· ${esc(f.alias.join(", "))}</span>`:""}</div>
+    <div class="row" style="margin:0"><span class="badge l${f.lvl}">${LVL[f.lvl]}</span><button class="ghost small" data-fedit="${f.id}">Modifica</button><button class="danger small" data-fdel="${f.id}">Elimina</button></div></div>
+    <div class="tags">${f.types.map(x=>`<span class="tag fod">${FOD[x]}</span>`).join("")}${f.limit?`<span class="tag">ok fino a ${f.limit} g</span>`:""}${f.bloat.map(x=>`<span class="tag bl">${BLOAT[x].split(":")[0]}</span>`).join("")}${f.micro.map(x=>`<span class="tag mi">${MICRO[x]}</span>`).join("")}</div>
+    ${f.note?`<p style="margin:6px 0 0;font-size:.9rem">${esc(f.note)}</p>`:""}</div>`).join("");
+  el.querySelectorAll("[data-fdel]").forEach(b=>b.onclick=()=>{if(b.dataset.c){S.customFoods=S.customFoods.filter(f=>f.id!==b.dataset.fdel);save();buildIndex();renderFoods();}else{b.dataset.c=1;b.textContent="Conferma?";}});
+  el.querySelectorAll("[data-fedit]").forEach(b=>b.onclick=()=>{const f=S.customFoods.find(x=>x.id===b.dataset.fedit);fEditing=f.id;
+    document.getElementById("fName").value=f.name;document.getElementById("fAlias").value=f.alias.join(", ");document.getElementById("fLvl").value=f.lvl;
+    document.getElementById("fLimit").value=f.limit||"";document.getElementById("fCat").value=f.cat||"Altro";document.getElementById("fNote").value=f.note||"";
+    chipPut("fTypes",f.types);chipPut("fBloat",f.bloat);chipPut("fMicro",f.micro);
+    document.getElementById("fTitle").textContent="Modifica alimento";document.getElementById("fCancel").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});});
+}
+document.getElementById("fSearch").addEventListener("input",e=>{
+  const q=norm(e.target.value), out=document.getElementById("fSearchOut");
+  if(q.length<2){out.innerHTML="";return;}
+  const hits=FOODS.filter(f=>f.alias.some(a=>norm(a).includes(q))).slice(0,6);
+  out.innerHTML=hits.length?foodCards({known:hits.map(f=>({f,eff:f.lvl,g:null,portionMsg:f.limit?`Porzione indicativa: circa ${f.limit} g.`:""})),unknown:[]})
+    :`<p class="hint" style="margin-top:10px">Non c'è. <button class="ghost small" data-newfood="${esc(e.target.value.trim())}">+ Aggiungilo</button></p>`;
+});
+// bottone "+ Aggiungi alimento" ovunque nell'app
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-newfood]"); if(!b) return;
+  resetFoodForm(); showTab("alimenti"); document.getElementById("fName").value=b.dataset.newfood; document.getElementById("fSearch").value="";document.getElementById("fSearchOut").innerHTML="";
+  window.scrollTo({top:0,behavior:"smooth"}); document.getElementById("fName").focus();
+});
+
 // ================= BACKUP =================
 document.getElementById("exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
@@ -933,7 +1140,7 @@ document.getElementById("exportBtn").onclick=()=>{
 document.getElementById("importFile").onchange=e=>{
   const f=e.target.files[0]; if(!f) return;
   const rd=new FileReader(); rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d||typeof d!=="object"||!("diary" in d))throw 0;
-    S={diary:d.diary||{},recipes:d.recipes||[],symptoms:d.symptoms||[],workouts:d.workouts||[],shopping:d.shopping||[]};save();toast("Backup importato");showTab("diario");}catch(err){toast("File non valido");}};
+    S={diary:d.diary||{},recipes:d.recipes||[],symptoms:d.symptoms||[],workouts:d.workouts||[],shopping:d.shopping||[],customFoods:d.customFoods||[],favorites:d.favorites||[],habits:d.habits||{}};save();buildIndex();toast("Backup importato");showTab("diario");}catch(err){toast("File non valido");}};
   rd.readAsText(f); e.target.value="";
 };
 
