@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Healthy life">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title> Healthy life – diario IBS, ricette e allenamenti</title>
+<title>Healthy life – diario IBS, ricette e allenamenti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -112,6 +112,11 @@ nav button{flex:0 0 auto}
 .shop-cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 2px;font-weight:600}
 .x{background:transparent;color:var(--muted);padding:4px 8px;font-size:1.1rem}
 #installBox{display:none}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.mini{font-size:.75rem;color:var(--muted);display:block;margin-bottom:3px}
+.macros{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.macro{font-size:.8rem;font-weight:600;border-radius:8px;padding:3px 9px;background:#f0ece3}
+.macro.k{background:#fbe9d6;color:#8a4b12}.macro.pr{background:#e3edf4;color:#244a66}.macro.ft{background:#fbf0dc;color:#7a4f10}.macro.cb{background:#e5f2e8;color:#245a36}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 </style>
@@ -178,6 +183,15 @@ nav button{flex:0 0 auto}
       <textarea id="rIng" style="min-height:110px" placeholder="riso 80g&#10;zucca 75g&#10;parmigiano&#10;olio all'aglio"></textarea>
       <label>Procedimento</label>
       <textarea id="rProc" style="min-height:90px"></textarea>
+      <label>Valori nutrizionali per porzione (facoltativi)</label>
+      <div class="grid4">
+        <div><span class="mini">Calorie (kcal)</span><input type="number" min="0" step="1" id="rKcal" inputmode="decimal"></div>
+        <div><span class="mini">Proteine (g)</span><input type="number" min="0" step="0.1" id="rProt" inputmode="decimal"></div>
+        <div><span class="mini">Grassi (g)</span><input type="number" min="0" step="0.1" id="rFat" inputmode="decimal"></div>
+        <div><span class="mini">Carboidrati (g)</span><input type="number" min="0" step="0.1" id="rCarb" inputmode="decimal"></div>
+        <div><span class="mini">Porzioni totali</span><input type="number" min="1" step="1" id="rServ" inputmode="numeric" placeholder="1"></div>
+      </div>
+      <div class="hint" id="rMacroHint" style="margin-top:6px"></div>
       <div class="row"><button class="primary" id="rSave">Salva ricetta</button><button class="ghost" id="rCheck">Controlla FODMAP</button><button class="ghost hidden" id="rCancel">Annulla modifica</button></div>
       <div id="rCheckOut"></div>
     </div>
@@ -239,7 +253,7 @@ nav button{flex:0 0 auto}
       <h2>Nuovo allenamento</h2>
       <div class="grid2">
         <div><label>Data</label><input type="date" id="wDate"></div>
-        <div><label>Tipo</label><select id="wType"><option>CrossFit</option><option>Camminata</option><option>Corsa</option><option>Palestra / pesi</option><option>Pilates</option><option>Yoga</option><option>Bici</option><option>Nuoto</option><option>HIIT</option><option>Danza</option><option>Altro</option></select></div>
+        <div><label>Tipo</label><select id="wType"><option>CrossFit</option><option>Camminata</option><option>Camminata in salita</option><option>Corsa</option><option>Palestra / pesi</option><option>Pilates</option><option>Bici</option><option>Nuoto</option><option>HIIT</option><option>Altro</option></select></div>
         <div><label>Durata (minuti)</label><input type="number" id="wMin" min="1" placeholder="45"></div>
         <div><label>Intensità</label><select id="wInt"><option value="1">Leggera</option><option value="2" selected>Moderata</option><option value="3">Intensa</option></select></div>
       </div>
@@ -248,7 +262,7 @@ nav button{flex:0 0 auto}
         <div><label>Risultato (tempo, round, kg)</label><input id="cfRes" placeholder="es. 12:35 · 5 round + 8 · 60 kg"></div>
         <div><label>Scaled / RX</label><select id="cfRx"><option value="">—</option><option>Scaled</option><option>RX</option><option>RX+</option></select></div>
       </div>
-      <label>Note (esercizi, come ti sentivi, pancia…)</label>
+      <label>Note (esercizi, come ti sentivi, intestino…)</label>
       <textarea id="wNote" placeholder="es. Fran: thruster + pull-up 21-15-9, pancia un po' gonfia"></textarea>
       <div class="row"><button class="primary" id="wSave">Salva allenamento</button></div>
     </div>
@@ -477,9 +491,9 @@ const SWAPS = {
 
 
 // ================= STORAGE =================
-const KEY="pancia_serena_v1";
+const KEY="healthy_life_v1";
 let S={diary:{},recipes:[],symptoms:[],workouts:[],shopping:[]};
-try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+try{const raw=localStorage.getItem(KEY)||localStorage.getItem("pancia_serena_v1"); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Impossibile salvare nel browser");}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function today(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
@@ -668,7 +682,7 @@ function renderMeal(k,text){
   const g=mealGrade(r);
   pill.innerHTML=`<span class="pill ${r.verdict.c}">FODMAP ${r.verdict.t.toLowerCase()}</span> <span class="pill ${g.c}">${g.t}</span>`;
   const isSnack=k==="merenda";
-  res.innerHTML=`${r.used.length?`<p class="hint">Ricetta: ${r.used.map(esc).join(", ")}</p>`:""}
+  res.innerHTML=`${r.used.length?`<p class="hint" style="margin-bottom:0">Ricetta: ${r.used.map(esc).join(", ")}</p>${macroChips(macrosOf(r.used),"1 porzione:")}`:""}
     <div class="alerts">${r.alerts.map(a=>`<div class="alert ${a.c}">${a.t}</div>`).join("")}
     ${!isSnack&&r.quality<3?`<div class="alert b"><b>Equilibrio</b>: ${balanceText(r).toLowerCase()}.</div>`:""}</div>
     <details><summary>Come migliorarlo, dettaglio alimenti e micronutrienti</summary>${improveTips(r)}${foodCards(r)}${microGrid(r.micro)}</details>`;
@@ -683,12 +697,14 @@ function renderDaySummary(d){
   const v=totHigh>=3||avg>=3?{t:"Giornata impegnativa",c:"r"}:totHigh>=1||avg>=1.2?{t:"Abbastanza buona",c:"a"}:{t:"Giornata gentile",c:"g"};
   const fodTypes={}; rs.forEach(x=>x.r.known.filter(i=>i.eff>=1).forEach(i=>i.f.types.forEach(t=>fodTypes[t]=(fodTypes[t]||0)+1)));
   const sym=S.symptoms.filter(s=>s.date===d);
+  const dm=macrosOf(rs.flatMap(x=>x.r.used));
   const wk=S.workouts.filter(w=>w.date===d);
   out.innerHTML=`<div class="card"><h2>Riepilogo della giornata</h2><div class="summary">
-    <div class="tile"><div class="lab">Pancia</div><div class="val ${v.c}">${v.t}</div><div class="hint">${totHigh} alimenti ad alto FODMAP</div></div>
+    <div class="tile"><div class="lab">Intestino</div><div class="val ${v.c}">${v.t}</div><div class="hint">${totHigh} alimenti ad alto FODMAP</div></div>
     <div class="tile"><div class="lab">Micronutrienti</div><div class="val">${MICRO_KEY.filter(k=>micro.has(k)).length}<span class="hint"> / ${MICRO_KEY.length}</span></div><div class="hint">coperti nella giornata</div></div>
     <div class="tile"><div class="lab">Sintomi / Allenamenti</div><div class="val">${sym.length} · ${wk.length}</div><div class="hint">${wk.reduce((s,w)=>s+(+w.min||0),0)} min di attività</div></div>
   </div>
+  ${hasMacro(dm)?`<div style="margin-top:12px"><b style="font-size:.9rem">Dalle ricette di oggi</b>${macroChips(dm)}<p class="hint" style="margin:4px 0 0">Conta solo i piatti salvati nelle Ricette con i loro valori.</p></div>`:""}
   ${Object.keys(fodTypes).length?`<div class="alerts"><div class="alert a">FODMAP presenti oggi: ${Object.entries(fodTypes).map(([t,n])=>`${FOD[t]} (${n})`).join(", ")}. Se hai sintomi, segnali nella sezione Sintomi.</div></div>`:""}
   ${microGrid(micro)}${microTips(micro,3)}</div>`;
 }
@@ -698,6 +714,27 @@ document.getElementById("dToday").onclick=()=>{dDate.value=today();renderDiary()
 dDate.addEventListener("change",renderDiary);
 
 // ================= RICETTE =================
+function hasMacro(r){return r&&[r.kcal,r.prot,r.fat,r.carb].some(v=>v!=null);}
+function fmtN(v){return Math.round(v*10)/10;}
+function macroChips(m,label){
+  if(!hasMacro(m)) return "";
+  return `<div class="macros">${label?`<span class="hint" style="align-self:center">${label}</span>`:""}${m.kcal!=null?`<span class="macro k">${Math.round(m.kcal)} kcal</span>`:""}${m.prot!=null?`<span class="macro pr">P ${fmtN(m.prot)} g</span>`:""}${m.fat!=null?`<span class="macro ft">G ${fmtN(m.fat)} g</span>`:""}${m.carb!=null?`<span class="macro cb">C ${fmtN(m.carb)} g</span>`:""}</div>`;
+}
+// somma i valori delle ricette citate in un testo (1 porzione per ricetta)
+function macrosOf(names){
+  const tot={kcal:null,prot:null,fat:null,carb:null};
+  names.forEach(n=>{const r=S.recipes.find(x=>x.name===n);if(!hasMacro(r))return;["kcal","prot","fat","carb"].forEach(k=>{if(r[k]!=null)tot[k]=(tot[k]||0)+r[k];});});
+  return tot;
+}
+function macroHint(){
+  const g=id=>parseFloat(document.getElementById(id).value)||0;
+  const p=g("rProt"),f=g("rFat"),c=g("rCarb"),k=g("rKcal"),el=document.getElementById("rMacroHint");
+  if(!(p||f||c)){el.textContent="";return;}
+  const est=Math.round(p*4+f*9+c*4);
+  const tot=p*4+f*9+c*4;
+  el.innerHTML=`Dai macro risultano circa <b>${est} kcal</b>${k&&Math.abs(k-est)>est*0.15?" (diverso dalle calorie inserite: ricontrolla)":""} · proteine ${Math.round(p*4/tot*100)}% · grassi ${Math.round(f*9/tot*100)}% · carboidrati ${Math.round(c*4/tot*100)}%`;
+}
+["rKcal","rProt","rFat","rCarb"].forEach(id=>document.getElementById(id).addEventListener("input",macroHint));
 let editing=null;
 function recipeAnalysisHTML(ing){
   const r=analyze(ing); if(!r) return "";
@@ -708,24 +745,26 @@ document.getElementById("rCheck").onclick=()=>{document.getElementById("rCheckOu
 document.getElementById("rSave").onclick=()=>{
   const name=document.getElementById("rName").value.trim(), ing=document.getElementById("rIng").value.trim();
   if(!name||!ing){toast("Servono nome e ingredienti");return;}
-  const rec={id:editing||uid(),name,cat:document.getElementById("rCat").value,ing,proc:document.getElementById("rProc").value.trim()};
+  const num=id=>{const v=parseFloat(String(document.getElementById(id).value).replace(",","."));return isFinite(v)&&v>=0?v:null;};
+  const rec={id:editing||uid(),name,cat:document.getElementById("rCat").value,ing,proc:document.getElementById("rProc").value.trim(),
+    kcal:num("rKcal"),prot:num("rProt"),fat:num("rFat"),carb:num("rCarb"),serv:num("rServ")};
   if(editing) S.recipes=S.recipes.map(r=>r.id===editing?rec:r); else S.recipes.unshift(rec);
   save(); resetRecipeForm(); renderRecipes(); toast("Ricetta salvata");
 };
 document.getElementById("rCancel").onclick=resetRecipeForm;
-function resetRecipeForm(){editing=null;["rName","rIng","rProc"].forEach(i=>document.getElementById(i).value="");document.getElementById("rTitle").textContent="Nuova ricetta";document.getElementById("rCancel").classList.add("hidden");document.getElementById("rCheckOut").innerHTML="";}
+function resetRecipeForm(){editing=null;["rName","rIng","rProc","rKcal","rProt","rFat","rCarb","rServ"].forEach(i=>document.getElementById(i).value="");document.getElementById("rTitle").textContent="Nuova ricetta";document.getElementById("rCancel").classList.add("hidden");document.getElementById("rCheckOut").innerHTML="";macroHint();}
 document.getElementById("rSearch").addEventListener("input",renderRecipes);
 function renderRecipes(){
   const q=norm(document.getElementById("rSearch").value||""), list=document.getElementById("rList");
   const rs=S.recipes.filter(r=>!q||norm(r.name+" "+r.ing).includes(q));
   if(!rs.length){list.innerHTML=`<p class="hint">${S.recipes.length?"Nessun risultato.":"Ancora nessuna ricetta. Una volta salvata, puoi scriverne il nome nel diario e verrà analizzata con i suoi ingredienti."}</p>`;return;}
-  list.innerHTML=rs.map(r=>{const a=analyze(r.ing);return `<div class="item"><div class="item-head"><div><b>${esc(r.name)}</b> <span class="hint">· ${esc(r.cat)}</span></div>
+  list.innerHTML=rs.map(r=>{const a=analyze(r.ing);return `<div class="item"><div class="item-head"><div><b>${esc(r.name)}</b> <span class="hint">· ${esc(r.cat)}${r.serv?` · ${r.serv} porzioni`:""}</span>${macroChips(r)}</div>
     <div class="row" style="margin:0">${a?`<span class="pill ${a.verdict.c}">FODMAP ${a.verdict.t.toLowerCase()}</span>`:""}
     <button class="ghost small" data-add="${r.id}">+ Diario oggi</button><button class="ghost small" data-edit="${r.id}">Modifica</button><button class="danger small" data-del="${r.id}">Elimina</button></div></div>
     <details><summary>Ingredienti, procedimento e analisi</summary><p style="white-space:pre-wrap;margin:8px 0 0"><b>Ingredienti</b>\n${esc(r.ing)}</p>${r.proc?`<p style="white-space:pre-wrap"><b>Procedimento</b>\n${esc(r.proc)}</p>`:""}${recipeAnalysisHTML(r.ing)}</details></div>`;}).join("");
   list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(b.dataset.c){S.recipes=S.recipes.filter(r=>r.id!==b.dataset.del);save();renderRecipes();}else{b.dataset.c=1;b.textContent="Conferma?";}});
   list.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const r=S.recipes.find(x=>x.id===b.dataset.edit);editing=r.id;
-    document.getElementById("rName").value=r.name;document.getElementById("rCat").value=r.cat;document.getElementById("rIng").value=r.ing;document.getElementById("rProc").value=r.proc;
+    document.getElementById("rName").value=r.name;document.getElementById("rCat").value=r.cat;document.getElementById("rIng").value=r.ing;document.getElementById("rProc").value=r.proc;["kcal:rKcal","prot:rProt","fat:rFat","carb:rCarb","serv:rServ"].forEach(x=>{const [k,id]=x.split(":");document.getElementById(id).value=r[k]??"";});macroHint();
     document.getElementById("rTitle").textContent="Modifica ricetta";document.getElementById("rCancel").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});});
   list.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const r=S.recipes.find(x=>x.id===b.dataset.add);const h=new Date().getHours();
     const meal=h<11?"colazione":h<15?"pranzo":h<18?"merenda":"cena";const d=today();S.diary[d]=S.diary[d]||{};
@@ -814,7 +853,7 @@ function renderWorkouts(){
     <div class="tile"><div class="lab">Giorni di fila</div><div class="val">${streak}</div><div class="hint">con almeno un allenamento</div></div>`;
   document.getElementById("wBars").innerHTML=days.map((d,i)=>`<div class="bar"><span class="v">${perDay[i]||""}</span><div style="height:${perDay[i]/max*100}%"></div>${new Date(d+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short"})}</div>`).join("");
   const list=document.getElementById("wList");
-  if(!S.workouts.length){list.innerHTML=`<p class="hint">Nessun allenamento registrato. Tip: camminata e yoga sono tra le attività che aiutano di più la motilità intestinale nell'IBS.</p>`;return;}
+  if(!S.workouts.length){list.innerHTML=`<p class="hint">Nessun allenamento registrato. Tip: camminata (anche in salita) e pilates sono tra le attività che aiutano di più la motilità intestinale nell'IBS.</p>`;return;}
   list.innerHTML=S.workouts.slice(0,60).map(w=>`<div class="item"><div class="item-head"><div><b>${esc(w.type)}</b> <span class="hint">· ${fmtDate(w.date)}</span></div>
     <div class="row" style="margin:0"><span class="pill ${w.int==="3"?"r":w.int==="2"?"a":"g"}">${w.min} min · ${["","leggera","moderata","intensa"][w.int]}</span><button class="danger small" data-del="${w.id}">Elimina</button></div></div>
     ${(w.wod||w.res||w.rx)?`<div class="tags">${w.wod?`<span class="tag">${esc(w.wod)}</span>`:""}${w.rx?`<span class="tag mi">${esc(w.rx)}</span>`:""}${w.res?`<span class="tag bl">${esc(w.res)}</span>`:""}</div>`:""}
@@ -888,7 +927,7 @@ window.addEventListener("appinstalled",()=>{document.getElementById("installBox"
 // ================= BACKUP =================
 document.getElementById("exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`pancia-serena-backup-${today()}.json`;a.click();
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`healthy-life-backup-${today()}.json`;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 document.getElementById("importFile").onchange=e=>{
